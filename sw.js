@@ -1,11 +1,15 @@
-// sw.js - Service Worker Ringkas untuk Kebolehan Pemasangan (Installability)
-const CACHE_NAME = 'krd-pdp-v1';
+// sw.js - Diperlukan untuk PWA Installability
+const CACHE_NAME = 'krd-pdp-cache-v2';
 
 self.addEventListener('install', (event) => {
-  // Service worker dipasang
-  self.skipWaiting();
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
-  // Diperlukan untuk PWA, boleh dibiarkan kosong untuk penggunaan asas
+    // Biarkan pelayar menguruskan rangkaian secara normal (online-first)
+    // Ciri ini cukup untuk membolehkan 'Install' pada Chrome/Safari
 });
