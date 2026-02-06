@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- PWA Meta Tags -->
-    <title>Circulo X</title>
+    <title>CirculoX</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="RodaDarab">
+    <meta name="apple-mobile-web-app-title" content="CirculoX">
     <meta name="theme-color" content="#4f46e5">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
 
         :root {
-            --primary: #312e81; /* Warna Indigo yang lebih gelap (Indigo-900) untuk kontras */
+            --primary: #312e81; 
             --accent: #4f46e5;
             --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
         }
@@ -28,7 +28,7 @@
             font-family: 'Quicksand', sans-serif;
             background: var(--bg-gradient);
             min-height: 100vh;
-            color: #111827; /* Teks hampir hitam untuk kejelasan */
+            color: #111827;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -55,24 +55,23 @@
             z-index: 10;
         }
 
-        /* Responsive MNL Sizing */
         .mnl-item {
-            width: 2.25rem; /* Default mobile (w-9) */
+            width: 2.25rem;
             height: 2.25rem;
             transition: all 0.3s ease;
         }
 
         @media (min-width: 1024px) {
             .mnl-item {
-                width: 4.5rem; /* Besarkan 2x ganda untuk desktop/LCD */
+                width: 4.5rem;
                 height: 4.5rem;
                 border-width: 3px;
             }
             .mnl-item span:first-child {
-                font-size: 1.5rem !important; /* Nombor sifir besar */
+                font-size: 1.5rem !important;
             }
             .mnl-item span:last-child {
-                font-size: 0.875rem !important; /* Aksi (+2, -3) besar */
+                font-size: 0.875rem !important;
             }
         }
 
@@ -96,7 +95,6 @@
             fill: #f5f7ff !important;
         }
 
-        /* LCD Mode Styles */
         .lcd-timer {
             font-size: clamp(4rem, 15vw, 15rem);
             line-height: 1;
@@ -108,7 +106,6 @@
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
 
-        /* PRINT STYLES - FIXED */
         @media print {
             body > *:not(#printArea) { display: none !important; }
             #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; }
@@ -122,9 +119,8 @@
             overflow: hidden;
         }
 
-        /* High contrast text classes */
-        .text-pdp-primary { color: #1e1b4b; } /* Deep Navy */
-        .text-pdp-accent { color: #4338ca; } /* Vivid Indigo */
+        .text-pdp-primary { color: #1e1b4b; }
+        .text-pdp-accent { color: #4338ca; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -132,7 +128,7 @@
     <!-- Compact Header -->
     <header class="flex justify-between items-center p-3 md:p-5 no-print shrink-0 bg-white/50 border-b border-indigo-100">
         <div class="flex items-center gap-3">
-            <h1 class="text-2xl md:text-3xl font-black text-pdp-primary tracking-tighter">Kit Roda Darab</h1>
+            <h1 class="text-2xl md:text-3xl font-black text-pdp-primary tracking-tighter">CirculoX</h1>
             <div class="hidden sm:flex px-3 py-1 bg-emerald-600 text-white text-[10px] font-black rounded-full uppercase tracking-wider">OFFLINE READY</div>
         </div>
         <div class="flex gap-3">
@@ -242,7 +238,7 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h2 class="text-2xl font-black text-pdp-primary mb-3">Panduan PdP</h2>
+                        <h2 class="text-2xl font-black text-pdp-primary mb-3">Panduan CirculoX</h2>
                         <p class="text-sm text-gray-500 font-bold leading-relaxed px-4">Sila pilih murid dan sifir di bahagian kiri, kemudian klik pada roda interaktif untuk memulakan eksplorasi matematik.</p>
                     </div>
                 </div>
@@ -253,7 +249,7 @@
 
     <!-- Modals -->
     <div id="lcdModal" class="fixed inset-0 bg-indigo-950 hidden z-[100] flex flex-col items-center justify-center p-6 text-center">
-        <h2 class="text-white text-3xl font-black uppercase tracking-[0.3em] mb-10 opacity-80">Cabaran Masa Sifir</h2>
+        <h2 class="text-white text-3xl font-black uppercase tracking-[0.3em] mb-10 opacity-80">Cabaran CirculoX</h2>
         <div class="lcd-timer font-mono" id="lcdTimerDisplay">10:00</div>
         <div class="mt-12 flex gap-5">
             <button onclick="startLcdCountdown()" id="lcdStartBtn" class="px-12 py-5 bg-emerald-600 text-white rounded-2xl font-black text-2xl shadow-2xl hover:scale-105 transition-all">MULA SEKARANG</button>
@@ -385,8 +381,8 @@
     <script>
         // --- Setup PWA Manifest ---
         const manifest = {
-            name: "Kit Roda Darab PdP Pro",
-            short_name: "RodaDarab",
+            name: "CirculoX",
+            short_name: "CirculoX",
             start_url: ".",
             display: "standalone",
             background_color: "#e0e7ff",
@@ -430,7 +426,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "krd_backup_" + new Date().toISOString().slice(0,10) + ".json");
+            downloadAnchorNode.setAttribute("download", "circulox_backup_" + new Date().toISOString().slice(0,10) + ".json");
             document.body.appendChild(downloadAnchorNode); 
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
@@ -838,4 +834,5 @@
     </script>
 </body>
 </html>
+
 
