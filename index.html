@@ -89,16 +89,22 @@
             <!-- Student Context -->
             <div class="glass-card p-4 rounded-3xl border-b-4 border-indigo-500 shrink-0">
                 <div class="flex flex-col gap-2">
-                    <select id="classDropdown" onchange="loadStudentsByClass()" class="w-full bg-indigo-50 border-2 border-indigo-100 rounded-xl px-3 py-2 font-black text-indigo-700 outline-none">
+                    <select id="classDropdown" onchange="loadStudentsByClass()" class="w-full bg-indigo-50 border-2 border-indigo-100 rounded-xl px-3 py-2 font-black text-indigo-700 outline-none text-sm">
                         <option value="">Pilih Kelas...</option>
                     </select>
-                    <select id="studentDropdown" onchange="selectStudentFromList()" class="w-full bg-white border-2 border-gray-100 rounded-xl px-3 py-2 font-bold text-gray-700 outline-none">
+                    <select id="studentDropdown" onchange="selectStudentFromList()" class="w-full bg-white border-2 border-gray-100 rounded-xl px-3 py-2 font-bold text-gray-700 outline-none text-sm">
                         <option value="">Pilih Murid...</option>
                     </select>
                 </div>
+                <!-- Placeholder text if no student selected -->
+                <p id="noStudentText" class="text-[10px] text-gray-400 italic mt-2 text-center">Sila pilih kelas dan murid</p>
+                <!-- Container for active student info -->
                 <div id="activeStudentInfo" class="mt-3 hidden animate-fade-up">
-                    <p class="text-sm font-black text-indigo-400 uppercase tracking-widest">Sesi Aktif</p>
-                    <p id="dispName" class="text-xl font-black text-indigo-800 truncate"></p>
+                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Sesi Aktif</p>
+                    <div id="studentDetail">
+                        <p id="dispName" class="text-xl font-black text-indigo-800 truncate"></p>
+                        <p id="dispClass" class="text-sm font-bold text-indigo-400"></p>
+                    </div>
                 </div>
             </div>
 
@@ -179,7 +185,7 @@
         </section>
     </main>
 
-    <!-- MODALS (Sama seperti versi sebelum tetapi dikecilkan sedikit untuk mobile) -->
+    <!-- MODALS -->
     <!-- LCD / Countdown Mode -->
     <div id="lcdModal" class="fixed inset-0 bg-indigo-950 hidden z-[100] flex flex-col items-center justify-center p-6">
         <div class="lcd-timer text-white font-mono" id="lcdTimerDisplay">10:00</div>
@@ -187,7 +193,7 @@
             <button onclick="startLcdCountdown()" id="lcdStartBtn" class="px-10 py-5 bg-emerald-500 text-white rounded-2xl font-black text-2xl shadow-xl hover:scale-105 transition-all">MULA</button>
             <button onclick="resetLcdCountdown()" class="px-10 py-5 bg-indigo-800 text-indigo-100 rounded-2xl font-black text-2xl">RESET</button>
         </div>
-        <p id="lcdStudentName" class="mt-12 text-white text-3xl font-black tracking-tighter uppercase truncate max-w-full">SEMUA MURID</p>
+        <p id="lcdStudentName" class="mt-12 text-white text-3xl font-black tracking-tighter uppercase truncate max-w-full text-center">SEMUA MURID</p>
         <button onclick="closeLCDMode()" class="absolute top-6 right-6 text-indigo-400 text-5xl font-black transition-colors">×</button>
     </div>
 
@@ -258,7 +264,7 @@
     <div id="printArea" class="hidden bg-white"></div>
 
     <script>
-        // --- Setup PWA Manifest (blob for single file fallback) ---
+        // --- Setup PWA Manifest ---
         const manifest = {
             name: "Kit Roda Darab PdP Pro",
             short_name: "RodaDarab",
@@ -278,9 +284,9 @@
         manifestLink.href = URL.createObjectURL(manifestBlob);
         document.head.appendChild(manifestLink);
 
-        // --- Register SW (Offline) ---
+        // --- Register SW ---
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(e => console.log('SW offline ready failed:', e));
+            navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
         }
 
         // --- Init State ---
@@ -327,16 +333,25 @@
         }
 
         function updateStudentUI() {
-            const box = document.getElementById('studentDetail');
+            const detail = document.getElementById('studentDetail');
             const placeholder = document.getElementById('noStudentText');
+            const infoBox = document.getElementById('activeStudentInfo');
+            
+            if (!detail || !placeholder || !infoBox) return; // Safety check
+
             if(activeStudent) {
-                box.classList.remove('hidden'); placeholder.classList.add('hidden');
+                detail.classList.remove('hidden'); 
+                placeholder.classList.add('hidden');
                 document.getElementById('dispName').innerText = activeStudent.name;
-                document.getElementById('dispClass').innerText = activeStudent.kls;
-                document.getElementById('activeStudentInfo').classList.remove('hidden');
+                
+                const dispClass = document.getElementById('dispClass');
+                if (dispClass) dispClass.innerText = activeStudent.kls;
+                
+                infoBox.classList.remove('hidden');
             } else {
-                box.classList.add('hidden'); placeholder.classList.remove('hidden');
-                document.getElementById('activeStudentInfo').classList.add('hidden');
+                detail.classList.add('hidden'); 
+                placeholder.classList.remove('hidden');
+                infoBox.classList.add('hidden');
             }
         }
 
@@ -381,7 +396,7 @@
 
         function clearAllData() { if(confirm("Padam semua?")) { students=[]; records=[]; localStorage.clear(); updateClassDropdown(); renderStudentList(); renderGradebook(); }}
 
-        // --- Core UI Logic (Zero-Scroll optimized) ---
+        // --- Core UI Logic ---
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('btnLearn').className = mode === 'learn' ? 'py-3 rounded-xl font-black text-sm border-2 border-indigo-600 bg-indigo-600 text-white shadow-md' : 'py-3 rounded-xl font-black text-sm border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50';
@@ -511,7 +526,7 @@
 
         function startPracticeUI() {
             const currSa = (currentSifir * activeMultiplier) % 10;
-            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center uppercase tracking-widest">Berapakah nilai Sa?</h2><div class="grid grid-cols-5 gap-2">${[0,1,2,3,4,5,6,7,8,9].map(i => `<button onclick="checkSa(${i}, ${currSa})" class="h-14 bg-white border-2 border-emerald-100 rounded-xl font-black text-xl shadow-sm hover:bg-emerald-50 transition-all">${i}</button>`).join('')}</div>`;
+            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center uppercase tracking-widest text-sm">Berapakah nilai Sa?</h2><div class="grid grid-cols-5 gap-2">${[0,1,2,3,4,5,6,7,8,9].map(i => `<button onclick="checkSa(${i}, ${currSa})" class="h-14 bg-white border-2 border-emerald-100 rounded-xl font-black text-xl shadow-sm hover:bg-emerald-50 transition-all">${i}</button>`).join('')}</div>`;
             document.getElementById('guideActions').innerHTML = "";
         }
 
@@ -522,7 +537,7 @@
         }
 
         function updatePracticeRuleUI(correct) {
-            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center uppercase tracking-widest">Pilih Peraturan?</h2><div class="grid grid-cols-1 gap-3"><button onclick="checkRule('A', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase hover:bg-emerald-50">A (Menurun: +1)</button><button onclick="checkRule('B', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase hover:bg-emerald-50">B (Naik/Sama: Kekal)</button></div>`;
+            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center uppercase tracking-widest text-sm">Pilih Peraturan?</h2><div class="grid grid-cols-1 gap-3"><button onclick="checkRule('A', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase hover:bg-emerald-50">A (Menurun: +1)</button><button onclick="checkRule('B', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase hover:bg-emerald-50">B (Naik/Sama: Kekal)</button></div>`;
         }
 
         function checkRule(val, correct) {
