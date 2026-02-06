@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA & Mobile Meta Tags -->
+    <!-- PWA Meta Tags -->
     <title>Kit Roda Darab PdP Pro</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="RodaDarab">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4f46e5">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -77,7 +77,6 @@
             fill: #eef2ff !important;
         }
 
-        /* Print Styles */
         @media print {
             body > *:not(#printArea) { display: none !important; }
             #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black; }
@@ -92,7 +91,6 @@
             overflow: hidden;
         }
 
-        /* LCD Mode Styles */
         .lcd-timer {
             font-size: 10rem;
             line-height: 1;
@@ -131,11 +129,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
             
-            <!-- Panel Kawalan -->
+            <!-- Left Panel -->
             <div class="lg:col-span-4 space-y-6 animate-fade-up">
-                <!-- Info Murid Aktif -->
-                <div class="glass-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-b-8 border-indigo-500">
-                    <h3 class="text-[10px] md:text-sm font-black text-gray-400 uppercase mb-4 tracking-widest">Sesi Aktif</h3>
+                <div class="glass-card p-6 md:p-8 rounded-[2rem] border-b-8 border-indigo-500">
+                    <h3 class="text-xs font-black text-gray-400 uppercase mb-4 tracking-widest text-center">Sesi Aktif</h3>
                     <div id="activeStudentDisplay" class="p-4 bg-indigo-50 rounded-2xl border-2 border-indigo-100 min-h-[100px] flex flex-col justify-center text-center">
                         <p class="text-gray-400 font-bold italic text-sm" id="noStudentText">Imbas lembaran murid untuk mula</p>
                         <div id="studentDetail" class="hidden">
@@ -145,8 +142,7 @@
                     </div>
                 </div>
 
-                <!-- Mod & Sifir -->
-                <div class="glass-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] space-y-6">
+                <div class="glass-card p-6 md:p-8 rounded-[2rem] space-y-6">
                     <div>
                         <h3 class="text-xs font-black text-gray-400 uppercase mb-4 tracking-widest">Mod</h3>
                         <div class="grid grid-cols-2 gap-2 md:gap-4">
@@ -178,11 +174,9 @@
                 </div>
             </div>
 
-            <!-- Panel Interaksi -->
+            <!-- Right Panel -->
             <div class="lg:col-span-8 space-y-6 md:space-y-8 animate-fade-up">
-                
-                <!-- Magic Number Line -->
-                <div class="glass-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] overflow-x-auto border-t-8 border-indigo-100">
+                <div class="glass-card p-6 md:p-8 rounded-[2rem] overflow-x-auto border-t-8 border-indigo-100">
                     <h3 class="text-center font-black text-indigo-400 mb-6 text-[10px] md:text-sm uppercase tracking-widest">Garis Nombor Ajaib</h3>
                     <div class="flex justify-between items-center mnl-strip relative min-w-[500px] md:min-w-0">
                         <script>
@@ -204,10 +198,8 @@
                         <span class="text-gray-300 font-black text-center p-6 text-lg">Sila pilih sifir</span>
                     </div>
 
-                    <div id="guidePanel" class="glass-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] min-h-[400px] md:min-h-[500px] border-l-[10px] border-indigo-500 flex flex-col shadow-2xl">
-                        <div id="guideContent" class="flex-grow overflow-y-auto">
-                            <!-- Dinamik -->
-                        </div>
+                    <div id="guidePanel" class="glass-card p-6 md:p-8 rounded-[2rem] min-h-[400px] md:min-h-[500px] border-l-[10px] border-indigo-500 flex flex-col shadow-2xl">
+                        <div id="guideContent" class="flex-grow overflow-y-auto"></div>
                         <div id="guideActions" class="mt-6 flex flex-col gap-3"></div>
                     </div>
                 </div>
@@ -215,12 +207,10 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <!-- LCD / Class Challenge Modal -->
+    <!-- Modals (LCD, Student, Scanner, Entry) -->
     <div id="lcdModal" class="fixed inset-0 bg-indigo-950 hidden z-[100] flex flex-col items-center justify-center p-4 md:p-8">
         <div class="w-full max-w-6xl text-center space-y-6 md:space-y-12">
             <h2 class="text-indigo-200 text-xl md:text-3xl font-black uppercase tracking-[0.2em] md:tracking-[0.5em]">Cabaran Sifir 2-9</h2>
-            
             <div class="flex flex-col items-center">
                 <div id="lcdTimerDisplay" class="lcd-timer text-white font-mono">10:00</div>
                 <div class="flex gap-4 mt-8 no-print">
@@ -228,35 +218,30 @@
                     <button onclick="resetLcdCountdown()" class="px-6 py-4 md:px-12 md:py-6 bg-indigo-800 text-indigo-200 rounded-2xl md:rounded-3xl font-black text-xl md:text-3xl shadow-2xl hover:bg-indigo-700 transition-all">RESET</button>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
-                <div class="p-4 md:p-8 bg-indigo-900/50 rounded-2xl md:rounded-[2rem] border-2 border-indigo-800">
-                    <p class="text-indigo-400 font-bold uppercase text-xs mb-2">Masa</p>
-                    <select id="lcdTimeSelect" class="bg-transparent text-white text-2xl md:text-4xl font-black outline-none cursor-pointer">
+                <div class="p-4 md:p-8 bg-indigo-900/50 rounded-2xl border-2 border-indigo-800">
+                    <p class="text-indigo-400 font-bold uppercase text-xs mb-2 text-center">Masa</p>
+                    <select id="lcdTimeSelect" class="bg-transparent text-white text-2xl font-black outline-none cursor-pointer w-full text-center">
                         <option value="300" class="text-black">5 MIN</option>
-                        <option value="420" class="text-black">7 MIN</option>
                         <option value="600" class="text-black" selected>10 MIN</option>
                         <option value="900" class="text-black">15 MIN</option>
                     </select>
                 </div>
-                <div class="p-4 md:p-8 bg-indigo-900/50 rounded-2xl md:rounded-[2rem] border-2 border-indigo-800 col-span-1 md:col-span-3">
+                <div class="p-4 md:p-8 bg-indigo-900/50 rounded-2xl border-2 border-indigo-800 col-span-1 md:col-span-3 text-center">
                     <p class="text-indigo-400 font-bold uppercase text-xs mb-2">Murid Terkini</p>
-                    <p id="lcdStudentName" class="text-white text-xl md:text-3xl font-black tracking-tight">SEMUA MURID</p>
+                    <p id="lcdStudentName" class="text-white text-xl md:text-3xl font-black tracking-tight uppercase">SEMUA MURID</p>
                 </div>
             </div>
-
-            <button onclick="closeLCDMode()" class="absolute top-6 right-6 md:top-10 md:right-10 text-indigo-400 hover:text-white text-3xl md:text-5xl font-black no-print">×</button>
+            <button onclick="closeLCDMode()" class="absolute top-6 right-6 text-indigo-400 hover:text-white text-3xl font-black">×</button>
         </div>
     </div>
 
-    <!-- Student & Record Manager Modal -->
     <div id="studentModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-4">
-        <div class="glass-card w-full max-w-4xl p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] animate-fade-up max-h-[90vh] overflow-y-auto">
+        <div class="glass-card w-full max-w-4xl p-6 md:p-8 rounded-[2rem] animate-fade-up max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl md:text-4xl font-black text-indigo-700">Pangkalan Data & Rekod</h2>
-                <button onclick="closeStudentManager()" class="text-gray-400 hover:text-red-500 text-3xl md:text-5xl font-black">×</button>
+                <h2 class="text-2xl md:text-4xl font-black text-indigo-700">Database & Rekod</h2>
+                <button onclick="closeStudentManager()" class="text-gray-400 hover:text-red-500 text-3xl font-black">×</button>
             </div>
-            
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="space-y-6">
                     <div class="p-6 bg-gray-50 rounded-[2rem] border-2 border-gray-100">
@@ -270,32 +255,30 @@
                     <div id="studentList" class="space-y-2 overflow-y-auto max-h-[250px] pr-2"></div>
                 </div>
                 <div class="p-6 bg-white border-4 border-indigo-50 rounded-[2rem]">
-                    <h3 class="font-black text-emerald-600 mb-4 uppercase text-xs tracking-widest">Rekod Prestasi Kertas</h3>
+                    <h3 class="font-black text-emerald-600 mb-4 uppercase text-xs tracking-widest">Rekod Kertas</h3>
                     <div id="gradebookList" class="space-y-3 overflow-y-auto max-h-[350px]"></div>
+                    <button onclick="clearAllData()" class="mt-4 text-[10px] text-red-400 font-bold uppercase underline">Padam Semua</button>
                 </div>
             </div>
-            
-            <button onclick="generateTestForAll()" class="w-full mt-8 py-4 md:py-5 bg-emerald-600 text-white rounded-2xl md:rounded-3xl font-black text-lg md:text-xl shadow-xl">Cetak Lembaran Kerja (QR)</button>
+            <button onclick="generateTestForAll()" class="w-full mt-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-lg shadow-xl">Cetak Lembaran Kerja (QR)</button>
         </div>
     </div>
 
-    <!-- Scanner Modal -->
     <div id="scannerModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-6">
         <div class="glass-card w-full max-w-lg p-6 rounded-3xl animate-fade-up text-center">
-            <h2 class="text-2xl font-black text-indigo-700 mb-4 tracking-tighter">Detect Lembaran Murid</h2>
+            <h2 class="text-2xl font-black text-indigo-700 mb-4">Detect Lembaran</h2>
             <div id="reader"></div>
             <button onclick="toggleScanner()" class="mt-6 py-4 px-10 bg-gray-100 text-gray-600 rounded-2xl font-black">Tutup</button>
         </div>
     </div>
 
-    <!-- Entry Modal -->
     <div id="entryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-md p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] animate-fade-up shadow-2xl border-indigo-500 border-t-8">
+        <div class="glass-card w-full max-w-md p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] animate-fade-up border-indigo-500 border-t-8">
             <h2 class="text-2xl font-black text-indigo-700 mb-2">Rekod Hasil</h2>
             <p id="entryStudentInfo" class="text-gray-500 font-bold mb-6 text-sm"></p>
-            <div class="space-y-6">
+            <div class="space-y-6 text-center">
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 text-center tracking-widest">Sifir</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Sifir</label>
                     <div class="grid grid-cols-5 gap-2" id="entrySifirGrid"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -308,8 +291,8 @@
                         <input type="number" id="entryTime" placeholder="45" class="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 font-black text-2xl text-center outline-none">
                     </div>
                 </div>
-                <button onclick="saveEntry()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg">Simpan Rekod</button>
-                <button onclick="closeEntryModal()" class="w-full py-2 text-gray-400 font-bold text-sm">Batal</button>
+                <button onclick="saveEntry()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg">Simpan</button>
+                <button onclick="closeEntryModal()" class="w-full py-2 text-gray-400 font-bold text-xs uppercase">Batal</button>
             </div>
         </div>
     </div>
@@ -318,29 +301,7 @@
     <div id="printArea" class="hidden bg-white"></div>
 
     <script>
-        // PWA Manifest Setup
-        const manifest = {
-            name: "Kit Roda Darab PdP Pro",
-            short_name: "RodaDarab",
-            start_url: ".",
-            display: "standalone",
-            background_color: "#e0e7ff",
-            theme_color: "#4f46e5",
-            icons: [{
-                src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzRmNDZlNSIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTYwIiBmaWxsPSJ3aGl0ZSIvPjxwYXRoIGQ9Ik0yNTYgMTYwdjE5Mm0tOTYtOTZoMTkyIiBzdHJva2U9IiM0ZjQ2ZTUiIHN0cm9rZS13aWR0aD0iNDAiLz48L3N2Zz4=",
-                sizes: "512x512",
-                type: "image/png"
-            }]
-        };
-
-        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        const manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.href = manifestURL;
-        document.head.appendChild(manifestLink);
-
-        // --- Init State ---
+        // Init State
         let currentSifir = null, currentMode = 'learn', lang = 'ms';
         let score = { correct: 0, total: 0 }, activeMultiplier = null, currentSubStep = 0;
         let timerInterval = null, timeElapsed = 0, html5QrCode = null;
@@ -357,7 +318,22 @@
             9: { val: 1, type: 'minus', display: '-1' }
         };
 
-        // --- Core ---
+        const texts = {
+            ms: {
+                welcome: "Kit Roda Darab",
+                intro: "Lengkapkan roda menggunakan teknik Sa (MNL) dan Puluh (Peraturan A/B).",
+                ready: "Pilih sifir untuk bermula.",
+                ruleA: "Sa MENURUN: Puluh +1",
+                ruleB: "Sa NAIK/SAMA: Puluh Kekal"
+            }
+        };
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
+        // Logic Functions
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('btnLearn').className = mode === 'learn' ? 'py-4 rounded-xl font-black text-base border-2 border-indigo-600 bg-indigo-600 text-white shadow-lg' : 'py-4 rounded-xl font-black text-base border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50';
@@ -367,128 +343,73 @@
         }
 
         function selectSifir(num) {
-            currentSifir = num;
-            resetTimer();
+            currentSifir = num; resetTimer();
             document.querySelectorAll('.sifir-btn').forEach(b => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-600'));
-            const btn = document.getElementById(`sifir-${num}`);
-            if(btn) btn.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-600');
+            const btn = document.getElementById(`sifir-${num}`); if(btn) btn.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-600');
             document.querySelectorAll('[id^="mnl-"]').forEach(m => m.classList.remove('mnl-active'));
-            const mnl = document.getElementById(`mnl-${num}`);
-            if(mnl) mnl.classList.add('mnl-active');
+            const mnl = document.getElementById(`mnl-${num}`); if(mnl) mnl.classList.add('mnl-active');
             renderWheel(num);
-            document.getElementById('guideContent').innerHTML = `<div class="text-center mt-6 md:mt-10"><h2 class="text-3xl md:text-5xl font-black text-indigo-700 leading-tight tracking-tight">SIFIR ${num}</h2><p class="text-sm md:text-lg font-bold text-gray-400 mt-4 uppercase tracking-[0.2em]">Klik Roda Untuk Bermula</p></div>`;
+            document.getElementById('guideContent').innerHTML = `<div class="text-center mt-6 md:mt-10"><h2 class="text-3xl md:text-5xl font-black text-indigo-700 leading-tight">SIFIR ${num}</h2><p class="text-sm font-bold text-gray-400 mt-2 uppercase tracking-widest">Pilih Pendarab Di Roda</p></div>`;
             document.getElementById('guideActions').innerHTML = "";
         }
 
         function renderWheel(num) {
-            const wrapper = document.getElementById('wheelWrapper');
-            wrapper.innerHTML = '';
+            const wrapper = document.getElementById('wheelWrapper'); wrapper.innerHTML = '';
             const center = 200, svgNS = "http://www.w3.org/2000/svg";
-            const svg = document.createElementNS(svgNS, "svg");
-            svg.setAttribute("viewBox", `0 0 400 400`);
-            svg.classList.add("w-full", "h-full");
-
+            const svg = document.createElementNS(svgNS, "svg"); svg.setAttribute("viewBox", `0 0 400 400`); svg.classList.add("w-full", "h-full");
             for (let i = 0; i < 10; i++) {
-                const angle = 36, startA = i*angle-90, endA = (i+1)*angle-90;
-                const pathData = createArcPath(center, center, 100, 190, startA, endA);
-                const g = document.createElementNS(svgNS, "g");
-                g.classList.add("cursor-pointer");
-                g.onclick = () => handleSegmentClick(i+1);
-                const sector = document.createElementNS(svgNS, "path");
-                sector.setAttribute("d", pathData); sector.setAttribute("fill", "white"); sector.setAttribute("stroke", "#e5e7eb"); sector.setAttribute("stroke-width", "2");
+                const angle = 36, startA = i*angle-90, endA = (i+1)*angle-90, pathData = createArcPath(center, center, 100, 190, startA, endA);
+                const g = document.createElementNS(svgNS, "g"); g.classList.add("cursor-pointer"); g.onclick = () => handleSegmentClick(i+1);
+                const sector = document.createElementNS(svgNS, "path"); sector.setAttribute("d", pathData); sector.setAttribute("fill", "white"); sector.setAttribute("stroke", "#e5e7eb"); sector.setAttribute("stroke-width", "2");
                 sector.id = `sector-${i+1}`; sector.classList.add("transition-all", "hover:fill-indigo-50");
                 const rad = ((startA + 18) * Math.PI) / 180;
                 const tx = center + Math.cos(rad) * 75, ty = center + Math.sin(rad) * 75;
-                const label = document.createElementNS(svgNS, "text");
-                label.setAttribute("x", tx); label.setAttribute("y", ty); label.setAttribute("text-anchor", "middle"); label.setAttribute("alignment-baseline", "middle");
+                const label = document.createElementNS(svgNS, "text"); label.setAttribute("x", tx); label.setAttribute("y", ty); label.setAttribute("text-anchor", "middle"); label.setAttribute("alignment-baseline", "middle");
                 label.classList.add("wheel-label", "text-[20px]", "fill-indigo-900"); label.textContent = i+1;
                 const px = center + Math.cos(rad) * 145, py = center + Math.sin(rad) * 145;
-                const ans = document.createElementNS(svgNS, "text");
-                ans.setAttribute("x", px); ans.setAttribute("y", py+8); ans.setAttribute("text-anchor", "middle");
+                const ans = document.createElementNS(svgNS, "text"); ans.setAttribute("x", px); ans.setAttribute("y", py+8); ans.setAttribute("text-anchor", "middle");
                 ans.classList.add("ans-label", "text-[22px]", "fill-gray-300"); ans.id = `ans-${i+1}`; ans.textContent = "??";
                 g.appendChild(sector); g.appendChild(label); g.appendChild(ans); svg.appendChild(g);
             }
-            const c = document.createElementNS(svgNS, "circle");
-            c.setAttribute("cx", center); c.setAttribute("cy", center); c.setAttribute("r", 45); c.setAttribute("fill", "#4f46e5");
-            const ct = document.createElementNS(svgNS, "text");
-            ct.setAttribute("x", center); ct.setAttribute("y", center+8); ct.setAttribute("text-anchor", "middle"); ct.classList.add("fill-white", "font-black", "text-[26px]");
-            ct.textContent = `${num}×`;
-            svg.appendChild(c); svg.appendChild(ct); wrapper.appendChild(svg);
+            const c = document.createElementNS(svgNS, "circle"); c.setAttribute("cx", center); c.setAttribute("cy", center); c.setAttribute("r", 45); c.setAttribute("fill", "#4f46e5");
+            const ct = document.createElementNS(svgNS, "text"); ct.setAttribute("x", center); ct.setAttribute("y", center+8); ct.setAttribute("text-anchor", "middle"); ct.classList.add("fill-white", "font-black", "text-[26px]");
+            ct.textContent = `${num}×`; svg.appendChild(c); svg.appendChild(ct); wrapper.appendChild(svg);
         }
 
         // --- LCD Mode Functions ---
-        function openLCDMode() {
-            document.getElementById('lcdModal').classList.remove('hidden');
-            document.getElementById('lcdStudentName').innerText = activeStudent ? activeStudent.name.toUpperCase() : "SEMUA MURID";
-            resetLcdCountdown();
-        }
-
-        function closeLCDMode() {
-            document.getElementById('lcdModal').classList.add('hidden');
-            resetLcdCountdown();
-        }
-
+        function openLCDMode() { document.getElementById('lcdModal').classList.remove('hidden'); document.getElementById('lcdStudentName').innerText = activeStudent ? activeStudent.name.toUpperCase() : "SEMUA MURID"; resetLcdCountdown(); }
+        function closeLCDMode() { document.getElementById('lcdModal').classList.add('hidden'); resetLcdCountdown(); }
         function startLcdCountdown() {
-            if(lcdCountdownInterval) {
-                clearInterval(lcdCountdownInterval);
-                lcdCountdownInterval = null;
-                document.getElementById('lcdStartBtn').innerText = "TERUSKAN";
-                return;
-            }
-            const select = document.getElementById('lcdTimeSelect');
-            if(lcdTimeLeft <= 0) lcdTimeLeft = parseInt(select.value);
+            if(lcdCountdownInterval) { clearInterval(lcdCountdownInterval); lcdCountdownInterval = null; document.getElementById('lcdStartBtn').innerText = "TERUSKAN"; return; }
+            const select = document.getElementById('lcdTimeSelect'); if(lcdTimeLeft <= 0) lcdTimeLeft = parseInt(select.value);
             document.getElementById('lcdStartBtn').innerText = "BERHENTI";
-            lcdCountdownInterval = setInterval(() => {
-                lcdTimeLeft--; updateLcdDisplay();
-                if(lcdTimeLeft <= 0) {
-                    clearInterval(lcdCountdownInterval); lcdCountdownInterval = null;
-                    alert("MASA TAMAT!"); resetLcdCountdown();
-                }
-            }, 1000);
+            lcdCountdownInterval = setInterval(() => { lcdTimeLeft--; updateLcdDisplay(); if(lcdTimeLeft <= 0) { clearInterval(lcdCountdownInterval); lcdCountdownInterval = null; alert("MASA TAMAT!"); resetLcdCountdown(); } }, 1000);
         }
-
-        function resetLcdCountdown() {
-            clearInterval(lcdCountdownInterval); lcdCountdownInterval = null;
-            const select = document.getElementById('lcdTimeSelect');
-            lcdTimeLeft = parseInt(select.value); updateLcdDisplay();
-            document.getElementById('lcdStartBtn').innerText = "MULA";
-        }
-
-        function updateLcdDisplay() {
-            const m = Math.floor(lcdTimeLeft / 60).toString().padStart(2, '0');
-            const s = (lcdTimeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('lcdTimerDisplay').innerText = `${m}:${s}`;
-        }
+        function resetLcdCountdown() { clearInterval(lcdCountdownInterval); lcdCountdownInterval = null; const select = document.getElementById('lcdTimeSelect'); lcdTimeLeft = parseInt(select.value); updateLcdDisplay(); document.getElementById('lcdStartBtn').innerText = "MULA"; }
+        function updateLcdDisplay() { const m = Math.floor(lcdTimeLeft/60).toString().padStart(2, '0'), s = (lcdTimeLeft%60).toString().padStart(2, '0'); document.getElementById('lcdTimerDisplay').innerText = `${m}:${s}`; }
 
         // --- Data ---
         function openStudentManager() { document.getElementById('studentModal').classList.remove('hidden'); renderStudentList(); renderGradebook(); }
         function closeStudentManager() { document.getElementById('studentModal').classList.add('hidden'); }
         function renderStudentList() {
-            const list = document.getElementById('studentList');
-            list.innerHTML = students.length ? '' : '<p class="text-center text-gray-300 py-6 font-bold uppercase">Tiada Data</p>';
+            const list = document.getElementById('studentList'); list.innerHTML = students.length ? '' : '<p class="text-center text-gray-300 py-6 font-bold uppercase">Tiada Data</p>';
             students.forEach((s, idx) => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center p-3 bg-white rounded-xl border-2 border-gray-100";
+                const div = document.createElement('div'); div.className = "flex justify-between items-center p-3 bg-white rounded-xl border-2 border-gray-100";
                 div.innerHTML = `<div class="text-left leading-tight"><p class="font-black text-indigo-900 text-sm">${s.name}</p><p class="text-[10px] font-bold text-gray-400">${s.kls}</p></div><button onclick="removeStudent(${idx})" class="text-red-300 font-black text-xl">×</button>`;
                 list.appendChild(div);
             });
         }
         function addStudent() {
-            const n = document.getElementById('addName').value, k = document.getElementById('addClass').value;
-            if(!n || !k) return;
-            students.push({ name: n, kls: k });
-            localStorage.setItem('krd_students_v2', JSON.stringify(students));
-            document.getElementById('addName').value = ''; document.getElementById('addClass').value = '';
-            renderStudentList();
+            const n = document.getElementById('addName').value, k = document.getElementById('addClass').value; if(!n || !k) return;
+            students.push({ name: n, kls: k }); localStorage.setItem('krd_students_v2', JSON.stringify(students));
+            document.getElementById('addName').value = ''; document.getElementById('addClass').value = ''; renderStudentList();
         }
         function removeStudent(idx) { students.splice(idx, 1); localStorage.setItem('krd_students_v2', JSON.stringify(students)); renderStudentList(); }
         function renderGradebook() {
-            const list = document.getElementById('gradebookList');
-            list.innerHTML = records.length ? '' : '<p class="text-center text-gray-300 py-6 font-bold uppercase">Tiada Rekod</p>';
+            const list = document.getElementById('gradebookList'); list.innerHTML = records.length ? '' : '<p class="text-center text-gray-300 py-6 font-bold uppercase text-[10px]">Tiada Rekod</p>';
             [...records].reverse().forEach((r) => {
-                const div = document.createElement('div');
-                div.className = "p-3 bg-indigo-50 border border-indigo-100 rounded-xl flex justify-between items-center";
-                div.innerHTML = `<div class="text-left leading-tight"><p class="font-black text-indigo-900 text-xs">${r.name}</p><p class="text-[9px] font-bold text-indigo-400">Sifir ${r.sifir} | ${r.score}/10 | ${r.time}s</p></div><span class="text-[9px] font-black text-indigo-300">${r.date}</span>`;
+                const div = document.createElement('div'); div.className = "p-3 bg-indigo-50 border border-indigo-100 rounded-xl flex justify-between items-center";
+                div.innerHTML = `<div class="text-left leading-tight"><p class="font-black text-indigo-900 text-[10px]">${r.name}</p><p class="text-[8px] font-bold text-indigo-400">Sifir ${r.sifir} | ${r.score}/10 | ${r.time}s</p></div><span class="text-[8px] font-black text-indigo-300">${r.date}</span>`;
                 list.appendChild(div);
             });
         }
@@ -497,43 +418,33 @@
         // --- Detection ---
         function toggleScanner() {
             const modal = document.getElementById('scannerModal');
-            if (!modal.classList.contains('hidden')) {
-                if (html5QrCode) html5QrCode.stop().then(() => html5QrCode = null);
-                modal.classList.add('hidden');
-            } else {
-                modal.classList.remove('hidden');
-                html5QrCode = new Html5Qrcode("reader");
+            if (!modal.classList.contains('hidden')) { if (html5QrCode) html5QrCode.stop().then(() => html5QrCode = null); modal.classList.add('hidden'); }
+            else {
+                modal.classList.remove('hidden'); html5QrCode = new Html5Qrcode("reader");
                 html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => {
                     if(text.startsWith("LOGIN:")) {
-                        const parts = text.replace("LOGIN:", "").split("|");
-                        activeStudent = { name: parts[0], kls: parts[1] };
+                        const parts = text.replace("LOGIN:", "").split("|"); activeStudent = { name: parts[0], kls: parts[1] };
                         toggleScanner(); openEntryModal();
                     }
                 }).catch(() => { alert("Kamera gagal."); toggleScanner(); });
             }
         }
         function openEntryModal() {
-            if(!activeStudent) return;
-            document.getElementById('entryModal').classList.remove('hidden');
+            if(!activeStudent) return; document.getElementById('entryModal').classList.remove('hidden');
             document.getElementById('entryStudentInfo').innerText = `${activeStudent.name} (${activeStudent.kls})`;
             const g = document.getElementById('entrySifirGrid'); g.innerHTML = "";
             for(let i=1; i<=9; i++) {
-                const b = document.createElement('button');
-                b.className = `p-2 rounded-lg font-black border-2 ${scanTargetSifir==i?'bg-indigo-600 text-white border-indigo-600':'bg-white text-gray-600 border-gray-100'}`;
-                b.innerText = i; b.onclick = () => { scanTargetSifir = i; openEntryModal(); };
-                g.appendChild(b);
+                const b = document.createElement('button'); b.className = `p-2 rounded-lg font-black border-2 ${scanTargetSifir==i?'bg-indigo-600 text-white border-indigo-600':'bg-white text-gray-600 border-gray-100'}`;
+                b.innerText = i; b.onclick = () => { scanTargetSifir = i; openEntryModal(); }; g.appendChild(b);
             }
         }
         function closeEntryModal() { document.getElementById('entryModal').classList.add('hidden'); }
         function saveEntry() {
-            const s = document.getElementById('entryScore').value, t = document.getElementById('entryTime').value;
-            if(!s || !t) return;
+            const s = document.getElementById('entryScore').value, t = document.getElementById('entryTime').value; if(!s || !t) return;
             records.push({ name: activeStudent.name, kls: activeStudent.kls, sifir: scanTargetSifir, score: s, time: t, date: new Date().toLocaleDateString('ms-MY', {day:'2-digit', month:'short'}) });
             localStorage.setItem('krd_records_v2', JSON.stringify(records));
-            document.getElementById('studentDetail').classList.remove('hidden');
-            document.getElementById('noStudentText').classList.add('hidden');
-            document.getElementById('dispName').innerText = activeStudent.name;
-            document.getElementById('dispClass').innerText = activeStudent.kls;
+            document.getElementById('studentDetail').classList.remove('hidden'); document.getElementById('noStudentText').classList.add('hidden');
+            document.getElementById('dispName').innerText = activeStudent.name; document.getElementById('dispClass').innerText = activeStudent.kls;
             closeEntryModal();
         }
 
@@ -544,7 +455,7 @@
         }
         function startTimer() { if (timerInterval) return; let sT = Date.now(); timerInterval = setInterval(() => { timeElapsed = Math.floor((Date.now()-sT)/1000); const m = Math.floor(timeElapsed/60).toString().padStart(2,'0'), s = (timeElapsed%60).toString().padStart(2,'0'); document.getElementById('timerDisplay').innerText = `${m}:${s}`; }, 1000); }
         function resetTimer() { clearInterval(timerInterval); timerInterval = null; timeElapsed = 0; if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').innerText = "00:00"; }
-        function resetApp() { currentSifir = null; score = { correct: 0, total: 0 }; document.getElementById('currentScore').innerText = "0/0"; resetTimer(); document.getElementById('wheelWrapper').innerHTML = `<span class="text-gray-300 font-black text-center p-6 text-lg">Sila pilih sifir</span>`; document.getElementById('guideContent').innerHTML = `<h2 class="text-2xl font-black text-indigo-700 text-center mt-6">Panduan Roda</h2><p class="text-center font-bold text-gray-400 mt-2 uppercase text-sm tracking-widest">Eksplorasi langkah sifir secara visual.</p>`; document.getElementById('guideActions').innerHTML = ""; }
+        function resetApp() { currentSifir = null; score = { correct: 0, total: 0 }; document.getElementById('currentScore').innerText = "0/0"; resetTimer(); document.getElementById('wheelWrapper').innerHTML = `<span class="text-gray-300 font-black text-center p-6 text-lg">Pilih Sifir</span>`; document.getElementById('guideContent').innerHTML = `<h2 class="text-2xl font-black text-indigo-700 text-center mt-6">Panduan Roda</h2><p class="text-center font-bold text-gray-400 mt-2 uppercase text-xs tracking-widest">Pilih segmen di roda interaktif.</p>`; document.getElementById('guideActions').innerHTML = ""; }
         function toggleLang() { lang = lang === 'ms' ? 'en' : 'ms'; resetApp(); }
         function handleSegmentClick(m) {
             if(currentMode === 'practice' && !timerInterval && score.total === 0) startTimer();
@@ -555,8 +466,8 @@
         function updateLearnUI() {
             const m = activeMultiplier, res = currentSifir * m, prevSa = (currentSifir * (m-1)) % 10, currSa = res % 10, action = krdActions[currentSifir];
             let content = `<h2 class="text-3xl font-black text-indigo-700 mb-6 text-center">${currentSifir} × ${m}</h2>`;
-            if(currentSubStep >= 1) content += `<div class="step-box bg-amber-50 border-amber-500 shadow-sm"><p class="text-[10px] font-black text-amber-600 uppercase mb-2">Langkah 1: Cari Sa</p><div class="flex items-center gap-4"><span class="text-xl font-black">${prevSa}</span><span class="text-xl font-black text-indigo-600">${action.display}</span><span class="text-3xl font-black text-amber-700">➔ ${currSa}</span></div></div>`;
-            if(currentSubStep >= 2) content += `<div class="step-box bg-indigo-50 shadow-sm"><p class="text-[10px] font-black text-indigo-600 uppercase mb-2">Langkah 2: Cari Puluh</p><p class="text-lg font-black text-indigo-800">${(prevSa > currSa && m > 1) ? "Sa Menurun: Puluh +1" : "Sa Naik/Sama: Puluh Kekal"}</p></div>`;
+            if(currentSubStep >= 1) content += `<div class="step-box bg-amber-50 border-amber-500 shadow-sm"><p class="text-[10px] font-black text-amber-600 uppercase mb-2 text-center">Sa</p><div class="flex items-center justify-center gap-4"><span class="text-xl font-black">${prevSa}</span><span class="text-xl font-black text-indigo-600">${action.display}</span><span class="text-3xl font-black text-amber-700">➔ ${currSa}</span></div></div>`;
+            if(currentSubStep >= 2) content += `<div class="step-box bg-indigo-50 shadow-sm"><p class="text-[10px] font-black text-indigo-600 uppercase mb-2 text-center">Puluh</p><p class="text-lg font-black text-indigo-800 text-center">${(prevSa > currSa && m > 1) ? "Sa Menurun: Puluh +1" : "Sa Naik/Sama: Puluh Kekal"}</p></div>`;
             if(currentSubStep === 3) {
                 const ans = document.getElementById(`ans-${m}`); ans.textContent = res < 10 ? `0${res}` : res; ans.classList.replace('fill-gray-300', 'fill-indigo-600');
                 content += `<div class="mt-4 p-6 bg-indigo-600 text-white rounded-2xl text-center shadow-xl animate-fade-up"><p class="text-5xl font-black">${res}</p></div>`;
@@ -570,30 +481,27 @@
             document.getElementById('guideActions').innerHTML = "";
         }
         function checkSa(val, correct) {
-            if(val === correct) {
-                const prevSa = (currentSifir * (activeMultiplier-1)) % 10, correctRule = (prevSa > correct && activeMultiplier > 1) ? 'A' : 'B';
-                score.correct++; updatePracticeRuleUI(correctRule);
-            } else alert("Kurang tepat!");
+            if(val === correct) { const prevSa = (currentSifir * (activeMultiplier-1)) % 10, correctRule = (prevSa > correct && activeMultiplier > 1) ? 'A' : 'B'; score.correct++; updatePracticeRuleUI(correctRule); }
+            else alert("Kurang tepat!");
             score.total++; document.getElementById('currentScore').innerText = `${score.correct}/${score.total}`;
         }
         function updatePracticeRuleUI(correct) {
-            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center tracking-widest uppercase">Peraturan PULUH?</h2><div class="grid grid-cols-1 gap-3"><button onclick="checkRule('A', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm">A (Menurun: Puluh +1)</button><button onclick="checkRule('B', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm">B (Naik/Sama: Puluh Kekal)</button></div>`;
+            document.getElementById('guideContent').innerHTML = `<h2 class="text-xl font-black text-emerald-700 mb-6 text-center tracking-widest uppercase">Peraturan PULUH?</h2><div class="grid grid-cols-1 gap-3"><button onclick="checkRule('A', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase">A (Menurun: +1)</button><button onclick="checkRule('B', '${correct}')" class="py-4 bg-white border-2 border-emerald-100 rounded-2xl font-black text-base text-emerald-700 shadow-sm uppercase">B (Naik/Sama: Kekal)</button></div>`;
         }
         function checkRule(val, correct) {
             if(val === correct || activeMultiplier === 1) {
                 const res = currentSifir * activeMultiplier;
                 const ans = document.getElementById(`ans-${activeMultiplier}`); ans.textContent = res < 10 ? `0${res}` : res; ans.classList.replace('fill-gray-300', 'fill-emerald-600');
                 document.getElementById('guideContent').innerHTML = `<div class="text-center py-6 animate-fade-up"><p class="text-6xl font-black text-emerald-600 leading-none">${res}</p><p class="mt-4 text-xl font-black text-emerald-500 uppercase tracking-widest">TEPAT SEKALI!</p></div>`;
-                document.getElementById('guideActions').innerHTML = `<button onclick="nextPractice()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-xl">Teruskan!</button>`;
+                document.getElementById('guideActions').innerHTML = `<button onclick="nextPractice()" class="w-full py-5 bg-emerald-500 text-white rounded-3xl font-black text-xl shadow-xl">Teruskan!</button>`;
                 score.correct++;
             } else alert("Peraturan tidak tepat!");
             score.total++; document.getElementById('currentScore').innerText = `${score.correct}/${score.total}`;
         }
         function nextPractice() {
-            let answered = 0;
-            for(let i=1; i<=10; i++) { if(document.getElementById(`ans-${i}`).textContent !== "??") answered++; }
+            let answered = 0; for(let i=1; i<=10; i++) { if(document.getElementById(`ans-${i}`).textContent !== "??") answered++; }
             if (answered === 10) finishPractice();
-            else { document.getElementById('guideContent').innerHTML = `<div class="flex flex-col items-center justify-center min-h-[300px]"><p class="text-2xl font-black text-gray-300 text-center uppercase tracking-[0.2em] leading-relaxed">Pilih segmen seterusnya...</p></div>`; document.getElementById('guideActions').innerHTML = ""; }
+            else { document.getElementById('guideContent').innerHTML = `<div class="flex flex-col items-center justify-center min-h-[300px]"><p class="text-2xl font-black text-gray-300 text-center uppercase tracking-[0.2em] leading-relaxed">Sila pilih segmen seterusnya...</p></div>`; document.getElementById('guideActions').innerHTML = ""; }
         }
         function finishPractice() {
             resetTimer(); const n = activeStudent ? activeStudent.name : "Murid", k = activeStudent ? activeStudent.kls : "Tiada", data = `STUDENT:${n}|CLASS:${k}|SCORE:${score.correct}/${score.total}`;
@@ -601,6 +509,7 @@
             document.getElementById('guideContent').innerHTML = `<div class="text-center animate-fade-up"><h2 class="text-2xl font-black text-indigo-700 mb-4 uppercase">Selesai!</h2><div class="flex justify-center mb-4"><img src="${qr}" class="w-40 h-40 border-4 border-white shadow-xl rounded-2xl"></div><div class="text-left bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-100"><p class="text-lg font-black text-indigo-800 leading-tight">${n}</p><p class="font-bold text-indigo-500 text-sm">${k}</p></div></div>`;
             document.getElementById('guideActions').innerHTML = `<button onclick="resetApp()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg">Mula Baru</button>`;
         }
+
         function generateTestForAll() {
             if(!students.length) return alert("Sila daftar murid.");
             const p = document.getElementById('printArea'); p.innerHTML = "";
