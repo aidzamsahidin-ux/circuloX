@@ -16,6 +16,8 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Confetti untuk Keraian -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;900&display=swap');
@@ -69,7 +71,7 @@
         .sector-highlight { stroke: var(--accent); stroke-width: 5px; fill: #e0e7ff !important; }
 
         .lcd-timer {
-            font-size: clamp(5rem, 15vw, 14rem); line-height: 0.9; font-weight: 900; color: #ffffff;
+            font-size: clamp(5rem, 18vw, 16rem); line-height: 0.9; font-weight: 900; color: #ffffff;
             text-shadow: 0 4px 30px rgba(0,0,0,0.3); letter-spacing: -0.05em;
         }
 
@@ -87,6 +89,16 @@
         
         .leaderboard-item { transition: all 0.5s ease-out; transform: translateY(20px); opacity: 0; }
         .leaderboard-item.show { transform: translateY(0); opacity: 1; }
+
+        /* Podium Animations */
+        @keyframes podium-rise {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .podium-bar { animation: podium-rise 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .podium-1 { animation-delay: 0.5s; }
+        .podium-2 { animation-delay: 0.2s; }
+        .podium-3 { animation-delay: 0.8s; }
     </style>
 </head>
 <body class="flex flex-col text-sm md:text-base">
@@ -118,8 +130,7 @@
 
     <!-- Main Workspace -->
     <main class="flex-grow flex flex-col lg:grid lg:grid-cols-12 gap-4 p-3 md:p-6 lg:overflow-hidden no-print">
-        
-        <!-- Left: Controls -->
+        <!-- Controls -->
         <aside class="lg:col-span-3 flex flex-col gap-4 lg:overflow-hidden">
             <div class="glass-card p-5 rounded-[2rem] border-b-4 border-indigo-500">
                 <div class="space-y-3">
@@ -265,10 +276,49 @@
         </div>
 
         <!-- Content Container (Timer + Leaderboard) -->
-        <div class="flex flex-col flex-grow items-center justify-center w-full overflow-hidden gap-6">
+        <div class="flex flex-col flex-grow items-center justify-center w-full overflow-hidden gap-6 relative">
             
+            <!-- Podium View (Initially Hidden) -->
+            <div id="podiumView" class="hidden absolute inset-0 bg-indigo-950 z-20 flex flex-col items-center justify-center">
+                <h2 class="text-4xl font-black text-yellow-400 uppercase tracking-widest mb-12 animate-bounce">🏆 Pemenang 🏆</h2>
+                <div class="flex items-end justify-center gap-4 md:gap-8 w-full max-w-4xl h-96 pb-12">
+                    <!-- 2nd Place -->
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-2">
+                        <div class="text-white font-black text-xl md:text-2xl mb-2 text-center leading-tight" id="winner2Name">-</div>
+                        <div class="text-indigo-300 font-bold text-sm mb-2" id="winner2Time"></div>
+                        <div class="w-full h-48 bg-gradient-to-t from-gray-400 to-gray-200 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4">
+                            <span class="text-5xl font-black text-gray-600/30">2</span>
+                        </div>
+                    </div>
+                    <!-- 1st Place -->
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-1">
+                        <div class="text-yellow-300 font-black text-2xl md:text-4xl mb-2 text-center leading-tight drop-shadow-lg" id="winner1Name">-</div>
+                        <div class="text-yellow-100 font-bold text-lg mb-2" id="winner1Time"></div>
+                        <div class="w-full h-64 bg-gradient-to-t from-yellow-500 to-yellow-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 relative">
+                            <span class="text-7xl font-black text-yellow-800/30">1</span>
+                            <div class="absolute -top-10 text-6xl animate-bounce">👑</div>
+                        </div>
+                    </div>
+                    <!-- 3rd Place -->
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-3">
+                        <div class="text-white font-black text-xl md:text-2xl mb-2 text-center leading-tight" id="winner3Name">-</div>
+                        <div class="text-indigo-300 font-bold text-sm mb-2" id="winner3Time"></div>
+                        <div class="w-full h-32 bg-gradient-to-t from-amber-700 to-amber-500 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4">
+                            <span class="text-5xl font-black text-amber-900/30">3</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full max-w-4xl mt-8">
+                     <h3 class="text-white text-xl font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-4 text-center">Senarai Seterusnya</h3>
+                     <div id="restOfLeaderboard" class="grid grid-cols-2 gap-4 text-left text-indigo-200 font-bold">
+                        <!-- 4th onwards injected here -->
+                     </div>
+                </div>
+                <button onclick="hidePodium()" class="mt-8 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold">Kembali</button>
+            </div>
+
             <!-- Timer Section -->
-            <div class="flex flex-col items-center justify-center w-full max-w-4xl shrink-0">
+            <div id="timerSection" class="flex flex-col items-center justify-center w-full max-w-4xl shrink-0 transition-all duration-500">
                 <h2 class="text-indigo-300 text-2xl md:text-4xl font-black uppercase tracking-[0.3em] mb-2 opacity-80 animate-pulse">Masa Berjalan</h2>
                 <div class="lcd-timer font-mono leading-none" id="lcdTimerDisplay">10:00</div>
                 
@@ -283,13 +333,14 @@
                     
                     <div class="flex gap-2">
                         <button onclick="startLcdCountdown()" id="lcdStartBtn" class="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-lg transition-all shadow-lg active:scale-95">MULA</button>
+                        <button onclick="finishRace()" class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-lg transition-all shadow-lg active:scale-95">TAMAT</button>
                         <button onclick="resetLcdCountdown()" class="px-6 py-3 bg-indigo-700 hover:bg-indigo-600 text-indigo-100 rounded-xl font-black text-lg transition-all">RESET</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Live Leaderboard Section (Flex Grow to take remaining space) -->
-            <div class="w-full max-w-6xl bg-indigo-900/30 rounded-[2rem] border border-indigo-800 backdrop-blur-md overflow-hidden flex flex-col p-6 flex-grow min-h-0">
+            <!-- Live Leaderboard Section -->
+            <div id="liveLeaderboardSection" class="w-full max-w-6xl bg-indigo-900/30 rounded-[2rem] border border-indigo-800 backdrop-blur-md overflow-hidden flex flex-col p-6 flex-grow min-h-0 transition-all duration-500">
                 <div class="flex justify-between items-center mb-2 border-b border-indigo-700/50 pb-2 shrink-0">
                     <h3 class="text-white font-black text-xl uppercase tracking-widest flex items-center gap-2">
                         🏆 Ranking Terpantas <span id="leaderboardCount" class="bg-indigo-600 px-2 py-0.5 rounded text-xs">0</span>
@@ -382,6 +433,7 @@
         let peer = null;
         let conn = null;
         let myPeerId = null;
+        let raceStartTime = null;
         let liveLeaderboard = [];
         let remoteScannerHtml5QrCode = null;
         let isConnected = false;
@@ -403,7 +455,7 @@
             9: { val: 1, type: 'minus', display: '-1' }
         };
 
-        // --- PeerJS / Synergy Logic (CODE BASED) ---
+        // --- PeerJS / Synergy Logic ---
         function switchSynergyTab(tab) {
             if(tab === 'host') {
                 document.getElementById('synergyHostView').classList.remove('hidden');
@@ -424,18 +476,17 @@
 
         function openSynergyModal() {
             document.getElementById('synergyModal').classList.remove('hidden');
-            switchSynergyTab('host'); // Default view
+            switchSynergyTab('host');
         }
 
         function closeSynergyModal() {
             document.getElementById('synergyModal').classList.add('hidden');
         }
 
-        // Host (LCD) Initialization
         function initSynergyHost() {
             document.getElementById('synergyLoading').classList.remove('hidden');
             const code = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const peerId = `cx-${code}`; // Prefix to ensure valid ID
+            const peerId = `cx-${code}`;
             
             if(peer) peer.destroy();
             
@@ -445,7 +496,6 @@
                 myPeerId = id;
                 document.getElementById('synergyLoading').classList.add('hidden');
                 document.getElementById('synergyCodeDisplay').innerText = code;
-                
                 const lcdStatus = document.getElementById('lcdRemoteStatus');
                 if(lcdStatus) lcdStatus.innerText = `Menunggu (${code})`;
             });
@@ -456,12 +506,11 @@
             });
             
             peer.on('error', (err) => {
-                alert("Ralat sambungan. ID mungkin sudah digunakan. Cuba lagi.");
+                alert("Ralat sambungan. Cuba lagi.");
                 initSynergyHost();
             });
         }
 
-        // Client (Phone) Join
         function joinSynergySession() {
             const input = document.getElementById('sessionCodeInput').value.trim();
             if(!input) return alert("Sila masukkan kod.");
@@ -499,14 +548,12 @@
                 }
                 alert("Telefon guru berjaya disambungkan!");
                 
-                // Host listens for data
                 conn.on('data', (data) => {
                     if(data.type === 'SCAN_ENTRY') {
                         handleRaceEntry(data.payload);
                     }
                 });
             } else {
-                // Client: Auto open scanner for convenience
                 alert("Sambungan berjaya! Telefon kini berfungsi sebagai pengimbas remote.");
                 startRemoteScanner();
             }
@@ -514,10 +561,8 @@
 
         // Handle Entry (LCD)
         function handleRaceEntry(payload) {
-            // Calculate elapsed time from countdown
             const selectTime = document.getElementById('lcdTimeSelect').value;
             let initialTime = 600;
-            
             if (selectTime === 'custom') {
                initialTime = (document.getElementById('lcdCustomTime').value || 10) * 60;
             } else {
@@ -529,7 +574,6 @@
             const seconds = elapsed % 60;
             const timeString = `${minutes}m ${seconds}s`;
             
-            // Check duplicates
             const exists = liveLeaderboard.find(r => r.name === payload.name && r.kls === payload.kls);
             if(exists) return; 
 
@@ -578,6 +622,67 @@
             updateLCDLeaderboardUI();
         }
 
+        // --- PODIUM LOGIC ---
+        function finishRace() {
+            clearInterval(lcdCountdownInterval);
+            lcdCountdownInterval = null;
+            document.getElementById('lcdStartBtn').innerText = "MULA";
+            renderPodium();
+        }
+
+        function renderPodium() {
+            const filter = document.getElementById('lcdClassFilter').value;
+            let finalData = liveLeaderboard;
+            if(filter !== 'all') finalData = liveLeaderboard.filter(r => r.kls === filter);
+            
+            // Sort by fastest
+            finalData.sort((a,b) => a.timestamp - b.timestamp);
+
+            const winners = finalData.slice(0, 3);
+            
+            if(winners[0]) {
+                document.getElementById('winner1Name').innerText = winners[0].name;
+                document.getElementById('winner1Time').innerText = winners[0].timeStr;
+            }
+            if(winners[1]) {
+                document.getElementById('winner2Name').innerText = winners[1].name;
+                document.getElementById('winner2Time').innerText = winners[1].timeStr;
+            }
+            if(winners[2]) {
+                document.getElementById('winner3Name').innerText = winners[2].name;
+                document.getElementById('winner3Time').innerText = winners[2].timeStr;
+            }
+
+            // Fill the rest
+            const restContainer = document.getElementById('restOfLeaderboard');
+            restContainer.innerHTML = "";
+            finalData.slice(3, 11).forEach((r, idx) => {
+                restContainer.innerHTML += `<div class="bg-indigo-900/40 p-2 rounded-lg flex justify-between"><span>${idx+4}. ${r.name}</span><span>${r.timeStr}</span></div>`;
+            });
+
+            // Show Podium Overlay
+            document.getElementById('podiumView').classList.remove('hidden');
+            
+            // Trigger Confetti
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 };
+
+            function random(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function hidePodium() {
+            document.getElementById('podiumView').classList.add('hidden');
+        }
+
         function openLCDMode() {
             document.getElementById('lcdModal').classList.remove('hidden');
             document.getElementById('lcdTimerDisplay').innerText = "10:00";
@@ -605,9 +710,8 @@
             remoteScannerHtml5QrCode = new Html5Qrcode("remoteScannerVideo");
             remoteScannerHtml5QrCode.start(
                 { facingMode: "environment" }, 
-                { fps: 10, qrbox: 250 }, 
+                { fps: 15, qrbox: { width: 300, height: 300 } }, // Optimized box
                 (decodedText) => {
-                    // Handle scanned student QR
                     if(decodedText.startsWith("LOGIN:")) {
                         const parts = decodedText.replace("LOGIN:", "").split("|");
                         const studentName = parts[0];
@@ -619,9 +723,11 @@
                                 payload: { name: studentName, kls: studentClass }
                             });
                             
+                            // Visual & Haptic Feedback
+                            navigator.vibrate(200);
                             remoteScannerHtml5QrCode.pause();
-                            alert(`Data ${studentName} dihantar ke LCD!`);
-                            remoteScannerHtml5QrCode.resume();
+                            alert(`Data ${studentName} dihantar!`);
+                            setTimeout(() => remoteScannerHtml5QrCode.resume(), 1000);
                         } else {
                             alert("Terputus sambungan dengan LCD.");
                         }
@@ -650,14 +756,13 @@
             if(!m.classList.contains('hidden')) { if(html5QrCode) html5QrCode.stop(); m.classList.add('hidden'); }
             else { 
                 m.classList.remove('hidden'); html5QrCode = new Html5Qrcode("reader"); 
-                html5QrCode.start({facingMode:"environment"}, {fps:10,qrbox:250}, (t)=>{ 
+                html5QrCode.start({facingMode:"environment"}, {fps:15,qrbox:250}, (t)=>{ // Optimized FPS
                     try {
                         if(t.startsWith("LOGIN:")) { 
                             const p = t.replace("LOGIN:","").split("|"); 
                             const sName = p[0];
                             const sClass = p[1];
                             
-                            // If connected as CLIENT (Phone) -> Send to Host
                             if(isConnected && conn && conn.open) {
                                 conn.send({
                                     type: 'SCAN_ENTRY',
@@ -667,7 +772,6 @@
                                 alert(`Data ${sName} dihantar ke LCD!`);
                                 html5QrCode.resume();
                             } else {
-                                // Default behavior: Open manual entry
                                 activeStudent={name:sName,kls:sClass}; 
                                 toggleScanner(); 
                                 openEntryModal();
@@ -698,8 +802,7 @@
                 if(lcdTimeLeft <= 0) { 
                     clearInterval(lcdCountdownInterval); 
                     lcdCountdownInterval = null; 
-                    alert("MASA TAMAT!"); 
-                    resetLcdCountdown(); 
+                    finishRace(); // Trigger finish/podium automatically
                 } 
             }, 1000);
         }
