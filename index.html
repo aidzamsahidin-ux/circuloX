@@ -99,6 +99,17 @@
         .podium-1 { animation-delay: 0.5s; }
         .podium-2 { animation-delay: 0.2s; }
         .podium-3 { animation-delay: 0.8s; }
+
+        /* Toast Notification */
+        #toast-notification {
+            transition: all 0.3s ease-in-out;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        #toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col text-sm md:text-base">
@@ -130,7 +141,8 @@
 
     <!-- Main Workspace -->
     <main class="flex-grow flex flex-col lg:grid lg:grid-cols-12 gap-4 p-3 md:p-6 lg:overflow-hidden no-print">
-        <!-- Controls -->
+        
+        <!-- Left: Controls -->
         <aside class="lg:col-span-3 flex flex-col gap-4 lg:overflow-hidden">
             <div class="glass-card p-5 rounded-[2rem] border-b-4 border-indigo-500">
                 <div class="space-y-3">
@@ -281,10 +293,10 @@
             <!-- Podium View (Initially Hidden) -->
             <div id="podiumView" class="hidden absolute inset-0 bg-indigo-950 z-20 flex flex-col items-center justify-center">
                 <h2 class="text-4xl font-black text-yellow-400 uppercase tracking-widest mb-12 animate-bounce">🏆 Pemenang 🏆</h2>
-                <div class="flex items-end justify-center gap-4 md:gap-8 w-full max-w-4xl h-96 pb-12">
+                <div class="flex items-end justify-center gap-2 md:gap-8 w-full max-w-5xl h-96 pb-12">
                     <!-- 2nd Place -->
                     <div class="flex flex-col items-center w-1/3 podium-bar podium-2">
-                        <div class="text-white font-black text-xl md:text-2xl mb-2 text-center leading-tight" id="winner2Name">-</div>
+                        <div class="text-white font-black text-lg md:text-2xl mb-2 text-center leading-tight max-w-[150px] md:max-w-xs truncate" id="winner2Name">-</div>
                         <div class="text-indigo-300 font-bold text-sm mb-2" id="winner2Time"></div>
                         <div class="w-full h-48 bg-gradient-to-t from-gray-400 to-gray-200 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4">
                             <span class="text-5xl font-black text-gray-600/30">2</span>
@@ -292,7 +304,7 @@
                     </div>
                     <!-- 1st Place -->
                     <div class="flex flex-col items-center w-1/3 podium-bar podium-1">
-                        <div class="text-yellow-300 font-black text-2xl md:text-4xl mb-2 text-center leading-tight drop-shadow-lg" id="winner1Name">-</div>
+                        <div class="text-yellow-300 font-black text-xl md:text-4xl mb-2 text-center leading-tight drop-shadow-lg max-w-[150px] md:max-w-xs truncate" id="winner1Name">-</div>
                         <div class="text-yellow-100 font-bold text-lg mb-2" id="winner1Time"></div>
                         <div class="w-full h-64 bg-gradient-to-t from-yellow-500 to-yellow-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 relative">
                             <span class="text-7xl font-black text-yellow-800/30">1</span>
@@ -301,14 +313,14 @@
                     </div>
                     <!-- 3rd Place -->
                     <div class="flex flex-col items-center w-1/3 podium-bar podium-3">
-                        <div class="text-white font-black text-xl md:text-2xl mb-2 text-center leading-tight" id="winner3Name">-</div>
+                        <div class="text-white font-black text-lg md:text-2xl mb-2 text-center leading-tight max-w-[150px] md:max-w-xs truncate" id="winner3Name">-</div>
                         <div class="text-indigo-300 font-bold text-sm mb-2" id="winner3Time"></div>
                         <div class="w-full h-32 bg-gradient-to-t from-amber-700 to-amber-500 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4">
                             <span class="text-5xl font-black text-amber-900/30">3</span>
                         </div>
                     </div>
                 </div>
-                <div class="w-full max-w-4xl mt-8">
+                <div class="w-full max-w-4xl mt-8 px-4">
                      <h3 class="text-white text-xl font-bold uppercase tracking-widest border-b border-white/20 pb-2 mb-4 text-center">Senarai Seterusnya</h3>
                      <div id="restOfLeaderboard" class="grid grid-cols-2 gap-4 text-left text-indigo-200 font-bold">
                         <!-- 4th onwards injected here -->
@@ -364,6 +376,15 @@
         </div>
         <p class="mt-6 text-gray-400 font-bold text-sm px-6">Imbas kertas murid yang telah siap. Data akan dihantar terus ke skrin LCD.</p>
         <button onclick="stopRemoteScanner()" class="mt-8 py-4 px-12 bg-red-600 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">TUTUP</button>
+        
+        <!-- Toast Notification (Hidden by default) -->
+        <div id="toast-notification" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 opacity-0 transition-all duration-300 pointer-events-none">
+            <span class="text-xl">✅</span>
+            <div>
+                <p class="font-black text-sm" id="toast-name">DATA DIHANTAR</p>
+                <p class="text-[10px] font-bold opacity-80">Direkod ke LCD</p>
+            </div>
+        </div>
     </div>
 
     <!-- Database & Scanner Modals -->
@@ -455,7 +476,7 @@
             9: { val: 1, type: 'minus', display: '-1' }
         };
 
-        // --- PeerJS / Synergy Logic ---
+        // --- PeerJS / Synergy Logic (CODE BASED) ---
         function switchSynergyTab(tab) {
             if(tab === 'host') {
                 document.getElementById('synergyHostView').classList.remove('hidden');
@@ -476,17 +497,18 @@
 
         function openSynergyModal() {
             document.getElementById('synergyModal').classList.remove('hidden');
-            switchSynergyTab('host');
+            switchSynergyTab('host'); // Default view
         }
 
         function closeSynergyModal() {
             document.getElementById('synergyModal').classList.add('hidden');
         }
 
+        // Host (LCD) Initialization
         function initSynergyHost() {
             document.getElementById('synergyLoading').classList.remove('hidden');
             const code = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const peerId = `cx-${code}`;
+            const peerId = `cx-${code}`; // Prefix to ensure valid ID
             
             if(peer) peer.destroy();
             
@@ -496,6 +518,7 @@
                 myPeerId = id;
                 document.getElementById('synergyLoading').classList.add('hidden');
                 document.getElementById('synergyCodeDisplay').innerText = code;
+                
                 const lcdStatus = document.getElementById('lcdRemoteStatus');
                 if(lcdStatus) lcdStatus.innerText = `Menunggu (${code})`;
             });
@@ -506,11 +529,12 @@
             });
             
             peer.on('error', (err) => {
-                alert("Ralat sambungan. Cuba lagi.");
+                alert("Ralat sambungan. ID mungkin sudah digunakan. Cuba lagi.");
                 initSynergyHost();
             });
         }
 
+        // Client (Phone) Join
         function joinSynergySession() {
             const input = document.getElementById('sessionCodeInput').value.trim();
             if(!input) return alert("Sila masukkan kod.");
@@ -548,12 +572,14 @@
                 }
                 alert("Telefon guru berjaya disambungkan!");
                 
+                // Host listens for data
                 conn.on('data', (data) => {
                     if(data.type === 'SCAN_ENTRY') {
                         handleRaceEntry(data.payload);
                     }
                 });
             } else {
+                // Client: Auto open scanner for convenience
                 alert("Sambungan berjaya! Telefon kini berfungsi sebagai pengimbas remote.");
                 startRemoteScanner();
             }
@@ -561,8 +587,10 @@
 
         // Handle Entry (LCD)
         function handleRaceEntry(payload) {
+            // Calculate elapsed time from countdown
             const selectTime = document.getElementById('lcdTimeSelect').value;
             let initialTime = 600;
+            
             if (selectTime === 'custom') {
                initialTime = (document.getElementById('lcdCustomTime').value || 10) * 60;
             } else {
@@ -574,6 +602,7 @@
             const seconds = elapsed % 60;
             const timeString = `${minutes}m ${seconds}s`;
             
+            // Check duplicates
             const exists = liveLeaderboard.find(r => r.name === payload.name && r.kls === payload.kls);
             if(exists) return; 
 
@@ -596,6 +625,7 @@
                 displayData = liveLeaderboard.filter(r => r.kls === filter);
             }
             
+            // Sort by fastest time
             displayData.sort((a,b) => a.timestamp - b.timestamp);
             
             list.innerHTML = "";
@@ -724,10 +754,13 @@
                             });
                             
                             // Visual & Haptic Feedback
-                            navigator.vibrate(200);
+                            playSuccessSound();
+                            showToast(studentName);
+                            if (navigator.vibrate) navigator.vibrate(200);
+                            
+                            // Pause briefly
                             remoteScannerHtml5QrCode.pause();
-                            alert(`Data ${studentName} dihantar!`);
-                            setTimeout(() => remoteScannerHtml5QrCode.resume(), 1000);
+                            setTimeout(() => remoteScannerHtml5QrCode.resume(), 1500);
                         } else {
                             alert("Terputus sambungan dengan LCD.");
                         }
@@ -737,6 +770,30 @@
                 console.log(err);
                 alert("Ralat kamera remote.");
             });
+        }
+        
+        function playSuccessSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 800; // Beep freq
+            osc.type = "sine";
+            gain.gain.value = 0.1;
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
+            setTimeout(() => osc.stop(), 150);
+        }
+        
+        function showToast(name) {
+            const toast = document.getElementById('toast-notification');
+            const toastName = document.getElementById('toast-name');
+            toastName.innerText = `DATA ${name.toUpperCase()} DIHANTAR`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
         }
 
         function stopRemoteScanner() {
@@ -768,9 +825,10 @@
                                     type: 'SCAN_ENTRY',
                                     payload: { name: sName, kls: sClass }
                                 });
+                                playSuccessSound();
+                                showToast(sName);
                                 html5QrCode.pause();
-                                alert(`Data ${sName} dihantar ke LCD!`);
-                                html5QrCode.resume();
+                                setTimeout(() => html5QrCode.resume(), 1500);
                             } else {
                                 activeStudent={name:sName,kls:sClass}; 
                                 toggleScanner(); 
