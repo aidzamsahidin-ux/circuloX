@@ -558,7 +558,8 @@
         }
         function filterLeaderboard() { updateLCDLeaderboardUI(); }
         function finishRace() {
-            clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; document.getElementById('lcdStartBtn').innerText="MULA"; renderPodium();
+            clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; document.getElementById('lcdStartBtn').innerText="MULA";
+            renderPodium();
         }
         function renderPodium() {
             const filter = document.getElementById('lcdClassFilter').value;
@@ -726,7 +727,8 @@
         function startTimer() { if(!timerInterval) { const s = Date.now(); timerInterval = setInterval(() => { const t = Math.floor((Date.now()-s)/1000); document.getElementById('timerDisplay').innerText = t; }, 1000); } }
         function resetTimer() { clearInterval(timerInterval); timerInterval=null; if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').innerText="00:00"; }
         function resetApp() { currentSifir=null; score={correct:0,total:0}; resetTimer(); if(document.getElementById('wheelWrapper')) document.getElementById('wheelWrapper').innerHTML = `<span class="text-indigo-100 font-black text-center p-8 text-xl uppercase tracking-widest leading-tight">Sila Pilih Sifir</span>`; document.getElementById('guideContent').innerHTML = `<div class="text-center py-12"><div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><h2 class="text-2xl font-black text-pdp-primary mb-3">Panduan PdP</h2><p class="text-sm text-gray-500 font-bold leading-relaxed px-4">Sila pilih murid dan sifir di bahagian kiri untuk memulakan sesi PdP secara interaktif.</p></div>`; document.getElementById('guideActions').innerHTML = ""; document.querySelectorAll('.sifir-btn').forEach(b => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900', 'ring-2', 'ring-indigo-200')); document.querySelectorAll('[id^="mnl-"]').forEach(m => m.classList.remove('mnl-active')); }
-
+        function openStudentManager() { document.getElementById('studentModal').classList.remove('hidden'); renderStudentList(); renderGradebook(); }
+        function closeStudentManager() { document.getElementById('studentModal').classList.add('hidden'); }
         // Init
         updateClassDropdown(); renderStudentList(); renderGradebook(); resetApp();
     </script>
