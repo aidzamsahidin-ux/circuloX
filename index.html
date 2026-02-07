@@ -88,14 +88,15 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
 
-        /* Print Specifics */
+        /* Print Specifics - CRITICAL FIX */
         @media print {
-            body > *:not(#printArea) { display: none !important; }
-            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; z-index: 9999; }
-            .page-break { page-break-after: always; display: block; height: 100vh; position: relative; padding: 10px; }
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; display: block; height: 100vh; width: 100%; position: relative; padding: 20px; box-sizing: border-box; }
+            /* Ensure graphics print */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; height: 90%; }
-            .print-wheel-container { border: 2px solid #e5e7eb; border-radius: 15px; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         }
 
         #reader, #remoteScannerVideo { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
@@ -118,7 +119,7 @@
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
             background-color: #10b981; color: white; padding: 0.75rem 1.5rem;
             border-radius: 9999px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-            display: flex; align-items: center; gap: 0.75rem; z-index: 200;
+            display: flex; align-items: center; gap: 0.75rem; z-index: 9999;
             opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap; pointer-events: none;
         }
@@ -460,12 +461,14 @@
         <p class="mt-8 text-gray-400 font-bold text-sm px-6">Imbas kertas murid. Data akan dihantar terus ke LCD.</p>
         <button onclick="stopRemoteScanner()" class="mt-8 py-4 px-12 bg-red-600 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">TUTUP</button>
         
-        <!-- Toast Notification -->
-        <div id="toast-notification" class="pointer-events-none">
-            <span class="text-2xl">✅</span>
-            <div>
-                <p class="font-black text-sm" id="toast-name">BERJAYA!</p>
-                <p class="text-[10px] font-bold opacity-80" id="toast-desc">Data dihantar</p>
+        <!-- Toast Notification (Fixed Top) -->
+        <div id="toast-notification" class="pointer-events-none fixed top-10 left-1/2 transform -translate-x-1/2 z-[200]">
+            <div class="bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+                <span class="text-2xl">✅</span>
+                <div class="text-left">
+                    <p class="font-black text-sm" id="toast-name">BERJAYA!</p>
+                    <p class="text-[10px] font-bold opacity-80" id="toast-desc">Data dihantar</p>
+                </div>
             </div>
         </div>
     </div>
@@ -485,8 +488,8 @@
             <div class="space-y-8">
                 <div><label class="block text-[10px] font-black text-gray-400 uppercase mb-4 text-left pl-1">Sifir</label><div class="grid grid-cols-5 gap-2" id="entrySifirGrid"></div></div>
                 <div class="grid grid-cols-2 gap-6">
-                    <div><label class="block text-[10px] font-black text-gray-400 uppercase mb-3 text-left pl-1">Betul</label><input type="number" id="entryScore" min="0" max="10" class="w-full px-5 py-4 rounded-2xl border-2 border-indigo-50 bg-indigo-50 font-black text-4xl text-center outline-none"></div>
-                    <div><label class="block text-[10px] font-black text-gray-400 uppercase mb-3 text-left pl-1">Masa</label><input type="number" id="entryTime" placeholder="45" class="w-full px-5 py-4 rounded-2xl border-2 border-indigo-50 bg-indigo-50 font-black text-4xl text-center outline-none"></div>
+                    <div><label class="block text-[10px] font-black text-gray-400 uppercase mb-3 text-left pl-1">Betul</label><input type="number" id="entryScore" min="0" max="10" class="w-full px-5 py-4 rounded-2xl border-2 border-indigo-50 bg-indigo-50 font-black text-4xl text-center outline-none focus:border-indigo-400"></div>
+                    <div><label class="block text-[10px] font-black text-gray-400 uppercase mb-3 text-left pl-1">Masa</label><input type="number" id="entryTime" placeholder="45" class="w-full px-5 py-4 rounded-2xl border-2 border-indigo-50 bg-indigo-50 font-black text-4xl text-center outline-none focus:border-indigo-400"></div>
                 </div>
                 <button onclick="saveEntry()" class="w-full py-5 bg-indigo-700 text-white rounded-2xl font-black text-xl hover:bg-indigo-800 shadow-lg">Simpan</button>
                 <button onclick="closeEntryModal()" class="w-full py-2 text-gray-400 font-bold uppercase text-[10px] hover:text-red-500">Batal</button>
@@ -630,9 +633,8 @@
                         conn.send({ type: 'SCAN_ENTRY', payload: { name: p[0], kls: p[1] } });
                         playBeep(); showToast(p[0]);
                         if(navigator.vibrate) navigator.vibrate(100);
-                        // Prevent multi scan for 2 sec but keep camera active
                         remoteScannerHtml5QrCode.pause(true);
-                        setTimeout(() => remoteScannerHtml5QrCode.resume(), 2000);
+                        setTimeout(() => remoteScannerHtml5QrCode.resume(), 1500);
                     } else { alert("Terputus."); }
                 }
             }).catch(e=>{alert("Kamera error.");});
@@ -641,7 +643,7 @@
         function playBeep() { const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=1000;o.type="sine";g.gain.value=0.1;o.start();g.gain.exponentialRampToValueAtTime(0.00001,c.currentTime+0.1);setTimeout(()=>o.stop(),100); }
         function showToast(n) { const t=document.getElementById('toast-notification'); document.getElementById('toast-name').innerText=n; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); }
 
-        // --- Local Scanner ---
+        // --- Local Scanner (UPDATED SMOOTH LOGIC) ---
         function toggleScanner() { 
             const m = document.getElementById('scannerModal'); 
             if(!m.classList.contains('hidden')) { if(html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear()); m.classList.add('hidden'); }
@@ -651,11 +653,17 @@
                     try {
                         if(t.startsWith("LOGIN:")) { 
                             const p = t.replace("LOGIN:","").split("|");
-                            // Standalone mode: stop immediately
                             playBeep();
+                            // NO ALERT HERE. Just action.
                             activeStudent={name:p[0],kls:p[1]}; 
-                            toggleScanner(); // Close scanner
-                            openEntryModal(); // Open form
+                            
+                            // Stop scanner immediately
+                            html5QrCode.stop().then(() => {
+                                html5QrCode.clear();
+                                m.classList.add('hidden');
+                                // Open entry modal immediately
+                                openEntryModal();
+                            });
                         }
                     } catch(e) {}
                 }); 
@@ -680,12 +688,12 @@
             if(this.value==='custom') c.classList.remove('hidden'); else { c.classList.add('hidden'); lcdTimeLeft=parseInt(this.value); updateLcdDisplay(); }
         });
 
-        // --- Learning Logic (SCAFFOLDING RESTORED) ---
+        // --- Learning Logic (SCAFFOLDING RESTORED FULLY) ---
         function updateLearnUI() {
             const m = activeMultiplier, res = currentSifir * m, prevSa = (currentSifir * (m-1)) % 10, currSa = res % 10, action = krdActions[currentSifir];
             let content = `<h2 class="text-3xl font-black text-pdp-primary mb-6 text-center">${currentSifir} × ${m}</h2>`;
             
-            // Step 1
+            // Step 1: Cari Sa
             if(currentSubStep >= 1) {
                 content += `
                 <div class="step-box border-l-8 border-amber-500 bg-amber-50">
@@ -697,7 +705,7 @@
                     </div>
                 </div>`;
             }
-            // Step 2
+            // Step 2: Cari Puluh
             if(currentSubStep >= 2) {
                 const rule = (prevSa > currSa && m > 1) ? "Sa Menurun (A): Tambah 1 pada Puluh" : "Sa Naik/Sama (B): Puluh Kekal";
                 const color = (prevSa > currSa && m > 1) ? "text-red-600" : "text-emerald-600";
@@ -707,7 +715,7 @@
                     <p class="text-lg font-black ${color} text-center leading-tight">${rule}</p>
                 </div>`;
             }
-            // Step 3
+            // Step 3: Jawapan
             if(currentSubStep === 3) {
                 const ans = document.getElementById(`ans-${m}`); ans.textContent = res < 10 ? `0${res}` : res; ans.classList.replace('fill-indigo-200', 'fill-indigo-900');
                 content += `<div class="mt-6 p-8 bg-indigo-800 text-white rounded-[2rem] text-center shadow-2xl animate-fade-up"><p class="text-xs font-black uppercase opacity-60 mb-1 tracking-widest">Jawapan Akhir</p><p class="text-6xl font-black">${res}</p></div>`;
@@ -718,7 +726,7 @@
             document.getElementById('guideContent').innerHTML = content;
         }
 
-        // --- Core Functions (Standard) ---
+        // --- Core Functions ---
         function updateClassDropdown() { const d=document.getElementById('classDropdown'), p=document.getElementById('printClassSelect'), u=[...new Set(students.map(s=>s.kls))].sort(); const h='<option value="">Pilih...</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); d.innerHTML=h; p.innerHTML='<option value="all">SEMUA KELAS</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); }
         function loadStudentsByClass() { const k=document.getElementById('classDropdown').value, d=document.getElementById('studentDropdown'); if(k) d.innerHTML='<option value="">Pilih...</option>'+students.filter(s=>s.kls===k).map(s=>`<option value="${s.name}">${s.name}</option>`).join(''); else d.innerHTML='<option value="">Pilih...</option>'; }
         function selectStudentFromList() { const n=document.getElementById('studentDropdown').value, k=document.getElementById('classDropdown').value; activeStudent=students.find(s=>s.name===n&&s.kls===k); updateStudentUI(); }
@@ -729,16 +737,29 @@
         function removeStudent(i) { students.splice(i,1); localStorage.setItem('krd_students_v3',JSON.stringify(students)); renderStudentList(); updateClassDropdown(); }
         function renderGradebook() { const l=document.getElementById('gradebookList'); l.innerHTML=''; [...records].reverse().forEach(r=>{ l.innerHTML+=`<div class="p-2 border-b text-xs"><b>${r.name}</b>: Sifir ${r.sifir} | ${r.score}/10 | ${r.time}s</div>`; }); }
         function clearAllData() { if(confirm("Padam?")) { students=[]; records=[]; localStorage.clear(); updateClassDropdown(); renderStudentList(); renderGradebook(); } }
+        
+        // --- FIXED PDF GENERATION (SYNC QR) ---
         function generateTestByClass() { 
             const c=document.getElementById('printClassSelect').value, t=c==='all'?students:students.filter(s=>s.kls===c); if(!t.length) return alert("Tiada data");
             const p=document.getElementById('printArea'); p.innerHTML='';
+            
+            // 1. Generate HTML Structure First
             t.forEach((s,i)=>{
                 const d=document.createElement('div'); d.className='page-break p-10 border-4 m-4';
                 d.innerHTML=`<div class="flex justify-between border-b-4 pb-4 mb-4"><div><h1 class="text-4xl font-black">CIRCULOX</h1><p class="text-xl font-bold">${s.name}</p><p>${s.kls}</p></div><div id="qr-${i}"></div></div><div class="grid grid-cols-2 gap-4">${Array.from({length:8},(_,j)=>`<div class="border-2 p-2 flex flex-col items-center"><p class="font-black text-lg">x${j+2}</p><div class="h-32 w-32 border rounded-full"></div></div>`).join('')}</div>`;
-                p.appendChild(d); setTimeout(()=>{new QRCode(document.getElementById(`qr-${i}`),{text:`LOGIN:${s.name}|${s.kls}`,width:80,height:80});},100);
+                p.appendChild(d);
             });
-            setTimeout(()=>window.print(),1000);
+
+            // 2. Generate QRs into placeholders
+            setTimeout(()=>{
+                t.forEach((s,i)=>{
+                   new QRCode(document.getElementById(`qr-${i}`), { text:`LOGIN:${s.name}|${s.kls}`, width:100, height:100 });
+                });
+                // 3. Print
+                setTimeout(()=>window.print(), 800);
+            }, 200);
         }
+
         function openEntryModal() { document.getElementById('entryModal').classList.remove('hidden'); if(activeStudent) document.getElementById('entryStudentInfo').innerText=`${activeStudent.name} (${activeStudent.kls})`; const g=document.getElementById('entrySifirGrid'); g.innerHTML=''; for(let i=1;i<=9;i++) { const b=document.createElement('button'); b.className=`p-2 border rounded ${scanTargetSifir==i?'bg-indigo-600 text-white':'bg-white'}`; b.innerText=i; b.onclick=()=>{scanTargetSifir=i;openEntryModal();}; g.appendChild(b); } }
         function closeEntryModal() { document.getElementById('entryModal').classList.add('hidden'); }
         function saveEntry() { const s=document.getElementById('entryScore').value, t=document.getElementById('entryTime').value; if(s&&t) { records.push({name:activeStudent.name,kls:activeStudent.kls,sifir:scanTargetSifir,score:s,time:t,date:new Date().toLocaleDateString()}); localStorage.setItem('krd_records_v3',JSON.stringify(records)); renderGradebook(); closeEntryModal(); } }
