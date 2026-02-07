@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CirculoX">
     <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="Kit Roda Darab Interaktif & Sistem Pengurusan Bilik Darjah">
 
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
+    <!-- Custom Styles -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;900&display=swap');
 
@@ -34,22 +36,20 @@
             min-height: 100vh;
             color: #111827;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        /* Desktop Optimization */
         @media (min-width: 1024px) {
             body { height: 100vh; overflow: hidden; }
         }
 
-        /* Glassmorphism */
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
         }
 
-        /* Interactive Elements */
         .mnl-active {
             background: var(--accent) !important;
             color: white !important;
@@ -74,33 +74,36 @@
         .wheel-label, .ans-label { pointer-events: none; font-weight: 800; }
         .sector-highlight { stroke: var(--accent); stroke-width: 5px; fill: #e0e7ff !important; }
 
-        /* LCD Mode */
         .lcd-timer {
             font-size: clamp(6rem, 20vw, 16rem); line-height: 0.9; font-weight: 900; color: #ffffff;
             text-shadow: 0 10px 40px rgba(0,0,0,0.2); letter-spacing: -0.05em;
         }
 
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
 
-        /* PRINT STYLES - FIXED ENGINE */
         @media print {
             body > *:not(#printArea) { display: none !important; }
             #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; z-index: 9999; }
-            .page-break { page-break-after: always; display: block; height: 100vh; width: 100%; position: relative; padding: 20px; box-sizing: border-box; }
+            .page-break { page-break-after: always; display: block; min-height: 100vh; position: relative; padding: 20px; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
         #reader, #remoteScannerVideo { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
         
-        /* Animations */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-up { animation: fadeInUp 0.4s ease-out forwards; }
 
         .leaderboard-item { transition: all 0.5s ease-out; transform: translateY(20px); opacity: 0; }
         .leaderboard-item.show { transform: translateY(0); opacity: 1; }
 
-        /* Toast */
+        @keyframes podium-rise { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .podium-bar { animation: podium-rise 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .podium-1 { animation-delay: 0.5s; }
+        .podium-2 { animation-delay: 0.2s; }
+        .podium-3 { animation-delay: 0.8s; }
+
         #toast-notification {
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
             background-color: #10b981; color: white; padding: 0.75rem 1.5rem;
@@ -114,7 +117,7 @@
 </head>
 <body class="flex flex-col text-sm md:text-base selection:bg-indigo-200">
 
-    <!-- HEADER -->
+    <!-- Header -->
     <header class="flex justify-between items-center p-3 md:p-4 no-print shrink-0 bg-white/70 backdrop-blur-xl border-b border-indigo-100 z-30 sticky top-0 shadow-sm">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg transform rotate-3">C</div>
@@ -124,25 +127,25 @@
             </div>
         </div>
         <div class="flex gap-2">
-            <button onclick="openSynergyModal()" class="p-2.5 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all flex items-center gap-2 active:scale-95" title="Sinergi (Connect Phone)">
+            <button onclick="openSynergyModal()" class="p-2.5 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2 active:scale-95" title="Sinergi (Connect Phone)">
                 <span class="text-lg">📡</span> <span class="hidden md:inline font-bold">Sinergi</span>
             </button>
-            <button onclick="openLCDMode()" class="p-2.5 bg-indigo-900 text-white rounded-xl shadow-md hover:bg-black transition-all flex items-center gap-2 active:scale-95" title="Paparan LCD">
+            <button onclick="openLCDMode()" class="p-2.5 bg-indigo-900 text-white rounded-xl shadow-md hover:bg-black hover:shadow-lg transition-all flex items-center gap-2 active:scale-95" title="Paparan LCD">
                 <span class="text-lg">🖥️</span> <span class="hidden md:inline font-bold">LCD</span>
             </button>
-            <button onclick="openStudentManager()" class="p-2.5 bg-emerald-600 text-white rounded-xl shadow-md hover:bg-emerald-700 transition-all flex items-center gap-2 active:scale-95" title="Rekod & PDF">
+            <button onclick="openStudentManager()" class="p-2.5 bg-emerald-600 text-white rounded-xl shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all flex items-center gap-2 active:scale-95" title="Rekod & PDF">
                 <span class="text-lg">👥</span> <span class="hidden md:inline font-bold">Data</span>
             </button>
-            <button onclick="toggleScanner()" class="p-2.5 bg-amber-500 text-white rounded-xl shadow-md hover:bg-amber-600 transition-all flex items-center gap-2 active:scale-95" title="Imbas QR">
+            <button onclick="toggleScanner()" class="p-2.5 bg-amber-500 text-white rounded-xl shadow-md hover:bg-amber-600 hover:shadow-lg transition-all flex items-center gap-2 active:scale-95" title="Imbas QR">
                 <span class="text-lg">📷</span> <span class="hidden md:inline font-bold">Scan</span>
             </button>
         </div>
     </header>
 
-    <!-- MAIN UI -->
+    <!-- Main Workspace -->
     <main class="flex-grow flex flex-col lg:grid lg:grid-cols-12 gap-4 p-3 md:p-6 lg:overflow-hidden no-print">
         
-        <!-- Left: Controls -->
+        <!-- Left: Controls & Config -->
         <aside class="lg:col-span-3 flex flex-col gap-4 lg:overflow-hidden animate-fade-up">
             <div class="glass-card p-5 rounded-[2rem] border-b-4 border-indigo-500">
                 <div class="space-y-3">
@@ -154,7 +157,6 @@
                         <option value="">Pilih Murid...</option>
                     </select>
                 </div>
-                <!-- Active Student Status -->
                 <div id="activeStudentInfo" class="mt-4 pt-4 border-t border-dashed border-indigo-200 hidden">
                     <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Sedang Aktif</p>
                     <div id="studentDetail">
@@ -194,7 +196,7 @@
             </div>
         </aside>
 
-        <!-- Center: Wheel -->
+        <!-- Center: Visualization -->
         <article class="lg:col-span-5 flex flex-col gap-4 lg:overflow-hidden relative animate-fade-up" style="animation-delay: 0.1s">
             <div class="glass-card p-4 rounded-[2rem] border-t-4 border-indigo-600 overflow-x-auto custom-scroll shrink-0">
                 <h3 class="text-center font-black text-indigo-900 mb-3 text-[10px] uppercase tracking-widest">Garis Nombor Ajaib</h3>
@@ -252,7 +254,7 @@
                     <div class="p-6 bg-indigo-50 rounded-3xl border-2 border-indigo-100 space-y-4 shadow-sm">
                         <div class="flex justify-between items-center">
                             <h3 class="font-black text-indigo-900 text-xs uppercase tracking-widest">Input Pukal</h3>
-                            <span class="text-[10px] text-indigo-400 font-bold">Nama, Kelas (Baris Baru)</span>
+                            <span class="text-[10px] text-indigo-400 font-bold">Nama, Kelas</span>
                         </div>
                         <textarea id="bulkInput" placeholder="Contoh:&#10;Ali Bin Abu, 4 Intan&#10;Siti Aminah, 4 Berlian" class="w-full h-32 px-5 py-4 rounded-2xl border-2 border-white outline-none font-bold text-sm resize-none focus:border-indigo-400"></textarea>
                         <div class="flex gap-3">
@@ -293,7 +295,6 @@
                     <p id="synergyCodeDisplay" class="text-5xl font-black text-indigo-900 tracking-widest font-mono select-all">-----</p>
                 </div>
                 <button onclick="initSynergyHost()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg hover:bg-indigo-700 active:scale-95 transition-transform">Jana Kod Baru</button>
-                <p class="text-xs font-bold text-gray-400">Masukkan kod ini pada telefon untuk menyambung.</p>
             </div>
             <div id="synergyClientView" class="hidden space-y-4">
                 <input type="text" id="sessionCodeInput" placeholder="Masukkan Kod 5-Digit" maxlength="5" class="w-full px-6 py-4 rounded-2xl border-2 border-indigo-100 text-center font-black text-2xl uppercase outline-none focus:border-indigo-500 placeholder-gray-300">
@@ -306,66 +307,37 @@
         </div>
     </div>
 
-    <!-- 3. LCD Mode (Host) -->
+    <!-- 3. LCD Mode -->
     <div id="lcdModal" class="fixed inset-0 bg-indigo-950 hidden z-[100] flex flex-col p-6 text-center overflow-hidden">
         <div class="flex justify-between items-start w-full mb-4 shrink-0">
             <div class="text-left bg-indigo-900/50 p-4 rounded-2xl backdrop-blur-sm border border-indigo-700 flex items-center gap-4 cursor-pointer hover:bg-indigo-800/50 transition-colors group" onclick="openSynergyModal()">
                 <div class="bg-white/10 p-2 rounded-lg w-12 h-12 flex items-center justify-center text-2xl group-hover:bg-white/20 transition-colors">📡</div>
-                <div>
-                    <p class="text-indigo-300 text-xs font-bold uppercase tracking-wider mb-0.5">Status Remote</p>
-                    <p id="lcdRemoteStatus" class="text-white font-black text-sm leading-tight uppercase">Belum Sambung</p>
-                </div>
+                <div><p class="text-indigo-300 text-xs font-bold uppercase tracking-wider mb-0.5">Status Remote</p><p id="lcdRemoteStatus" class="text-white font-black text-sm leading-tight uppercase">Belum Sambung</p></div>
             </div>
             <div class="flex flex-col items-end gap-2">
                 <button onclick="closeLCDMode()" class="text-indigo-400 hover:text-white text-4xl font-black transition-colors p-2">×</button>
                 <div class="flex items-center gap-2 bg-indigo-900/50 p-2 rounded-xl">
                     <label class="text-indigo-300 text-xs font-bold uppercase pl-2">Filter Kelas:</label>
-                    <select id="lcdClassFilter" onchange="filterLeaderboard()" class="bg-indigo-900 text-white border border-indigo-600 rounded-lg px-3 py-1 font-bold text-sm outline-none cursor-pointer hover:border-indigo-400 transition-colors">
-                        <option value="all">SEMUA</option>
-                    </select>
+                    <select id="lcdClassFilter" onchange="filterLeaderboard()" class="bg-indigo-900 text-white border border-indigo-600 rounded-lg px-3 py-1 font-bold text-sm outline-none cursor-pointer hover:border-indigo-400 transition-colors"><option value="all">SEMUA</option></select>
                 </div>
             </div>
         </div>
         <div class="flex flex-col flex-grow items-center justify-center w-full overflow-hidden gap-6 relative">
-            
-            <!-- Podium Overlay -->
             <div id="podiumView" class="hidden absolute inset-0 bg-indigo-950 z-20 flex flex-col items-center justify-center">
                 <h2 class="text-4xl md:text-6xl font-black text-yellow-400 uppercase tracking-widest mb-12 animate-bounce drop-shadow-lg">🏆 Pemenang 🏆</h2>
                 <div class="flex items-end justify-center gap-4 md:gap-8 w-full max-w-6xl h-96 pb-12">
-                    <div class="flex flex-col items-center w-1/3 podium-bar podium-2">
-                        <div class="text-white font-black text-lg md:text-3xl mb-2 text-center leading-tight w-full truncate px-2" id="winner2Name">-</div>
-                        <div class="text-indigo-300 font-bold text-sm md:text-xl mb-3 font-mono" id="winner2Time"></div>
-                        <div class="w-full h-48 bg-gradient-to-t from-gray-500 to-gray-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 transform hover:scale-105 transition-transform"><span class="text-6xl font-black text-gray-700/30">2</span></div>
-                    </div>
-                    <div class="flex flex-col items-center w-1/3 podium-bar podium-1">
-                        <div class="text-yellow-300 font-black text-2xl md:text-5xl mb-3 text-center leading-tight drop-shadow-lg w-full truncate px-2" id="winner1Name">-</div>
-                        <div class="text-yellow-100 font-bold text-lg md:text-2xl mb-4 font-mono" id="winner1Time"></div>
-                        <div class="w-full h-72 bg-gradient-to-t from-yellow-500 to-yellow-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-6 relative transform hover:scale-105 transition-transform"><span class="text-8xl font-black text-yellow-700/30">1</span><div class="absolute -top-12 text-7xl animate-bounce">👑</div></div>
-                    </div>
-                    <div class="flex flex-col items-center w-1/3 podium-bar podium-3">
-                        <div class="text-white font-black text-lg md:text-3xl mb-2 text-center leading-tight w-full truncate px-2" id="winner3Name">-</div>
-                        <div class="text-indigo-300 font-bold text-sm md:text-xl mb-3 font-mono" id="winner3Time"></div>
-                        <div class="w-full h-32 bg-gradient-to-t from-amber-700 to-amber-500 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 transform hover:scale-105 transition-transform"><span class="text-6xl font-black text-amber-900/30">3</span></div>
-                    </div>
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-2"><div class="text-white font-black text-lg md:text-3xl mb-2 text-center leading-tight w-full truncate px-2" id="winner2Name">-</div><div class="text-indigo-300 font-bold text-sm md:text-xl mb-3 font-mono" id="winner2Time"></div><div class="w-full h-48 bg-gradient-to-t from-gray-500 to-gray-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 transform hover:scale-105 transition-transform"><span class="text-6xl font-black text-gray-700/30">2</span></div></div>
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-1"><div class="text-yellow-300 font-black text-2xl md:text-5xl mb-3 text-center leading-tight drop-shadow-lg w-full truncate px-2" id="winner1Name">-</div><div class="text-yellow-100 font-bold text-lg md:text-2xl mb-4 font-mono" id="winner1Time"></div><div class="w-full h-72 bg-gradient-to-t from-yellow-500 to-yellow-300 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-6 relative transform hover:scale-105 transition-transform"><span class="text-8xl font-black text-yellow-700/30">1</span><div class="absolute -top-12 text-7xl animate-bounce">👑</div></div></div>
+                    <div class="flex flex-col items-center w-1/3 podium-bar podium-3"><div class="text-white font-black text-lg md:text-3xl mb-2 text-center leading-tight w-full truncate px-2" id="winner3Name">-</div><div class="text-indigo-300 font-bold text-sm md:text-xl mb-3 font-mono" id="winner3Time"></div><div class="w-full h-32 bg-gradient-to-t from-amber-700 to-amber-500 rounded-t-3xl border-4 border-white/20 shadow-2xl flex items-start justify-center pt-4 transform hover:scale-105 transition-transform"><span class="text-6xl font-black text-amber-900/30">3</span></div></div>
                 </div>
-                <div class="w-full max-w-5xl mt-8 px-8">
-                     <h3 class="text-indigo-300 text-xl font-bold uppercase tracking-widest border-b border-indigo-800 pb-2 mb-4 text-center">Senarai Seterusnya</h3>
-                     <div id="restOfLeaderboard" class="grid grid-cols-2 gap-4 text-left text-white font-bold text-lg"></div>
-                </div>
+                <div class="w-full max-w-5xl mt-8 px-8"><h3 class="text-indigo-300 text-xl font-bold uppercase tracking-widest border-b border-indigo-800 pb-2 mb-4 text-center">Senarai Seterusnya</h3><div id="restOfLeaderboard" class="grid grid-cols-2 gap-4 text-left text-white font-bold text-lg"></div></div>
                 <button onclick="hidePodium()" class="absolute top-8 right-8 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold transition-all">Kembali</button>
             </div>
-
-            <!-- Timer Section -->
             <div id="timerSection" class="flex flex-col items-center justify-center w-full max-w-4xl shrink-0 transition-all duration-500">
                 <h2 class="text-indigo-300 text-2xl md:text-4xl font-black uppercase tracking-[0.3em] mb-2 opacity-80 animate-pulse">Masa Berjalan</h2>
                 <div class="lcd-timer font-mono leading-none" id="lcdTimerDisplay">10:00</div>
                 <div class="mt-8 flex items-center gap-4 bg-indigo-900/40 p-3 rounded-3xl backdrop-blur-sm border border-indigo-700">
-                    <select id="lcdTimeSelect" class="bg-transparent text-white text-2xl font-black outline-none cursor-pointer px-6 py-2 border-r border-indigo-700 text-center">
-                        <option value="300" class="bg-indigo-900">5 Minit</option>
-                        <option value="600" class="bg-indigo-900" selected>10 Minit</option>
-                        <option value="900" class="bg-indigo-900">15 Minit</option>
-                        <option value="custom" class="bg-indigo-900">Custom...</option>
-                    </select>
+                    <select id="lcdTimeSelect" class="bg-transparent text-white text-2xl font-black outline-none cursor-pointer px-6 py-2 border-r border-indigo-700 text-center"><option value="300" class="bg-indigo-900">5 Minit</option><option value="600" class="bg-indigo-900" selected>10 Minit</option><option value="900" class="bg-indigo-900">15 Minit</option><option value="custom" class="bg-indigo-900">Custom...</option></select>
                     <input type="number" id="lcdCustomTime" class="w-24 bg-white/10 text-white font-black text-xl text-center rounded-xl px-2 py-2 outline-none hidden border border-white/20" placeholder="Min">
                     <div class="flex gap-3 pl-2">
                         <button onclick="startLcdCountdown()" id="lcdStartBtn" class="px-10 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-xl transition-all shadow-lg active:scale-95">MULA</button>
@@ -374,22 +346,14 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Live Leaderboard -->
             <div id="liveLeaderboardSection" class="w-full max-w-6xl bg-indigo-900/30 rounded-[2rem] border border-indigo-800 backdrop-blur-md overflow-hidden flex flex-col p-8 flex-grow min-h-0 transition-all duration-500">
-                <div class="flex justify-between items-center mb-4 border-b border-indigo-700/50 pb-2 shrink-0">
-                    <h3 class="text-white font-black text-2xl uppercase tracking-widest flex items-center gap-3">
-                        🏆 Ranking Terpantas <span id="leaderboardCount" class="bg-indigo-600 px-3 py-0.5 rounded-lg text-sm">0</span>
-                    </h3>
-                </div>
-                <div id="lcdLeaderboardList" class="flex-grow overflow-y-auto space-y-3 pr-2 custom-scroll">
-                    <p class="text-indigo-400/50 font-bold text-center mt-12 uppercase tracking-widest text-lg animate-pulse">Menunggu data dari telefon guru...</p>
-                </div>
+                <div class="flex justify-between items-center mb-4 border-b border-indigo-700/50 pb-2 shrink-0"><h3 class="text-white font-black text-2xl uppercase tracking-widest flex items-center gap-3">🏆 Ranking Terpantas <span id="leaderboardCount" class="bg-indigo-600 px-3 py-0.5 rounded-lg text-sm">0</span></h3></div>
+                <div id="lcdLeaderboardList" class="flex-grow overflow-y-auto space-y-3 pr-2 custom-scroll"><p class="text-indigo-400/50 font-bold text-center mt-12 uppercase tracking-widest text-lg animate-pulse">Menunggu data dari telefon guru...</p></div>
             </div>
         </div>
     </div>
 
-    <!-- 4. Main Scanner (Offline/Standalone) -->
+    <!-- 4. Scanner -->
     <div id="scannerModal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-6 text-center">
         <h2 class="text-3xl font-black text-white mb-8 uppercase tracking-widest">Imbas Kod</h2>
         <div id="reader" class="rounded-[2rem] overflow-hidden w-full max-w-sm border-4 border-indigo-600 bg-white"></div>
@@ -413,7 +377,7 @@
         </div>
     </div>
 
-    <!-- 6. Remote Scanner Mode -->
+    <!-- 6. Remote Scanner -->
     <div id="remoteScannerModal" class="fixed inset-0 bg-gray-900 hidden z-[120] flex flex-col items-center justify-center p-6 text-center">
         <h2 class="text-2xl font-black text-white mb-6 uppercase tracking-widest text-emerald-400 animate-pulse">• LIVE CONNECTION •</h2>
         <div class="w-full max-w-sm bg-black rounded-[2.5rem] overflow-hidden border-4 border-emerald-500 relative shadow-2xl aspect-[3/4]">
@@ -433,19 +397,16 @@
         </div>
     </div>
 
-    <!-- Print Area -->
     <div id="printArea" class="hidden bg-white"></div>
 
     <script>
-        // --- Setup PWA & PeerJS ---
-        const manifest = {name:"CirculoX",short_name:"CirculoX",start_url:".",display:"standalone",background_color:"#e0e7ff",theme_color:"#4f46e5",icons:[{src:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzRmNDZlNSIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTYwIiBmaWxsPSJ3aGl0ZSIvPjxwYXRoIGQ9Ik0yNTYgMTYwdjE5Mm0tOTYtOTZoMTkyIiBzdHJva2U9IiM0ZjQ2ZTUiIHN0cm9rZS13aWR0aD0iNDAiLz48L3N2Zz4=",sizes:"192x192",type:"image/png"}]};
-        const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'})); document.head.appendChild(manifestLink);
-
+        // Init vars
         let peer = null, conn = null, myPeerId = null, liveLeaderboard = [], remoteScannerHtml5QrCode = null, isConnected = false;
         let currentSifir = null, currentMode = 'learn', lang = 'ms', score = { correct: 0, total: 0 }, activeMultiplier = null, currentSubStep = 0;
         let timerInterval = null, timeElapsed = 0, html5QrCode = null;
         let students = JSON.parse(localStorage.getItem('krd_students_v3') || '[]'), records = JSON.parse(localStorage.getItem('krd_records_v3') || '[]');
         let activeStudent = null, scanTargetSifir = 1, lcdCountdownInterval = null, lcdTimeLeft = 600;
+        let confettiActive = false;
 
         const krdActions = {
             1: { val: 1, type: 'plus', display: '+1' }, 2: { val: 2, type: 'plus', display: '+2' },
@@ -455,108 +416,118 @@
             9: { val: 1, type: 'minus', display: '-1' }
         };
 
-        // --- Core ---
-        function updateClassDropdown() { const d=document.getElementById('classDropdown'), p=document.getElementById('printClassSelect'), u=[...new Set(students.map(s=>s.kls))].sort(); const h='<option value="">Pilih...</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); d.innerHTML=h; p.innerHTML='<option value="all">SEMUA KELAS</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); }
-        function loadStudentsByClass() { const k=document.getElementById('classDropdown').value, d=document.getElementById('studentDropdown'); if(k) d.innerHTML='<option value="">Pilih...</option>'+students.filter(s=>s.kls===k).map(s=>`<option value="${s.name}">${s.name}</option>`).join(''); else d.innerHTML='<option value="">Pilih...</option>'; }
-        function selectStudentFromList() { const n=document.getElementById('studentDropdown').value, k=document.getElementById('classDropdown').value; activeStudent=students.find(s=>s.name===n&&s.kls===k); updateStudentUI(); }
-        function updateStudentUI() { if(activeStudent) { document.getElementById('studentDetail').classList.remove('hidden'); document.getElementById('noStudentText').classList.add('hidden'); document.getElementById('activeStudentInfo').classList.remove('hidden'); document.getElementById('dispName').innerText=activeStudent.name; document.getElementById('dispClass').innerText=activeStudent.kls; } }
-        function addStudent() { const n=document.getElementById('addName').value, k=document.getElementById('addClass').value; if(n&&k) { students.push({name:n,kls:k}); localStorage.setItem('krd_students_v3',JSON.stringify(students)); updateClassDropdown(); renderStudentList(); document.getElementById('addName').value=''; document.getElementById('addClass').value=''; } }
-        function addBulkStudents() { const r=document.getElementById('bulkInput').value; if(r) { r.split('\n').forEach(l=>{const p=l.split(','); if(p.length>=2) students.push({name:p[0].trim(),kls:p[1].trim().toUpperCase()});}); localStorage.setItem('krd_students_v3',JSON.stringify(students)); updateClassDropdown(); renderStudentList(); document.getElementById('bulkInput').value=''; } }
-        function renderStudentList() { const l=document.getElementById('studentListContainer'); l.innerHTML=''; [...students].reverse().forEach((s,i)=>{ l.innerHTML+=`<div class="flex justify-between p-2 border-b"><span>${s.name} (${s.kls})</span><button onclick="removeStudent(${students.length-1-i})" class="text-red-500">x</button></div>`; }); }
-        function removeStudent(i) { students.splice(i,1); localStorage.setItem('krd_students_v3',JSON.stringify(students)); renderStudentList(); updateClassDropdown(); }
-        function renderGradebook() { const l=document.getElementById('gradebookList'); l.innerHTML=''; [...records].reverse().forEach(r=>{ l.innerHTML+=`<div class="p-2 border-b text-xs"><b>${r.name}</b>: Sifir ${r.sifir} | ${r.score}/10 | ${r.time}s</div>`; }); }
-        function clearAllData() { if(confirm("Padam?")) { students=[]; records=[]; localStorage.clear(); updateClassDropdown(); renderStudentList(); renderGradebook(); } }
-        
-        // --- PDF Generation Fix ---
-        function generateTestByClass() { 
-            const c=document.getElementById('printClassSelect').value, t=c==='all'?students:students.filter(s=>s.kls===c); if(!t.length) return alert("Tiada data");
-            const p=document.getElementById('printArea'); p.innerHTML='';
-            
-            // Build content first
-            t.forEach((s,i)=>{
-                const d=document.createElement('div'); d.className='page-break p-10 border-4 m-4';
-                d.innerHTML=`<div class="flex justify-between border-b-4 pb-4 mb-4"><div><h1 class="text-4xl font-black">CIRCULOX</h1><p class="text-xl font-bold">${s.name}</p><p>${s.kls}</p></div><div id="qr-${i}"></div></div><div class="grid grid-cols-2 gap-4">${Array.from({length:8},(_,j)=>`<div class="border-2 p-2 flex flex-col items-center"><p class="font-black text-lg">x${j+2}</p><div class="h-32 w-32 border rounded-full relative"><svg viewBox="0 0 400 400" class="absolute inset-0 w-full h-full">${Array.from({length:10},(_,k)=>{const a=k*36-90,r=((a+18)*Math.PI)/180;return`<path d="${createArcPath(200,200,85,175,a,a+36)}" fill="none" stroke="black" stroke-width="4"/><text x="${200+Math.cos(r)*65}" y="${200+Math.sin(r)*65}" text-anchor="middle" font-size="28" font-weight="900" alignment-baseline="middle">${k+1}</text><text x="${200+Math.cos(r)*112}" y="${200+Math.sin(r)*115}" text-anchor="middle" font-size="24" fill="#ccc">__</text>`;}).join('')}<circle cx="200" cy="200" r="45" fill="none" stroke="black" stroke-width="6"/></svg></div></div>`).join('')}</div><div class="mt-4 border-t-4 pt-2 flex justify-between font-bold text-xl"><p>MARKAH: _____ / 80</p><p>MASA: ________</p></div>`;
-                p.appendChild(d);
-            });
-
-            // Generate QRs
-            setTimeout(()=>{
-                t.forEach((s,i)=>{ new QRCode(document.getElementById(`qr-${i}`),{text:`LOGIN:${s.name}|${s.kls}`,width:100,height:100,correctLevel:QRCode.CorrectLevel.L}); });
-                setTimeout(()=>window.print(), 1000);
-            }, 300);
+        // FUNCTIONS
+        function switchSynergyTab(tab) {
+            const host = document.getElementById('synergyHostView'), client = document.getElementById('synergyClientView');
+            const tHost = document.getElementById('tabHost'), tClient = document.getElementById('tabClient');
+            if(tab === 'host') { host.classList.remove('hidden'); client.classList.add('hidden'); tHost.classList.add('bg-white','text-indigo-900','shadow-sm'); tHost.classList.remove('text-gray-500'); tClient.classList.remove('bg-white','text-indigo-900','shadow-sm'); tClient.classList.add('text-gray-500'); }
+            else { host.classList.add('hidden'); client.classList.remove('hidden'); tClient.classList.add('bg-white','text-indigo-900','shadow-sm'); tClient.classList.remove('text-gray-500'); tHost.classList.remove('bg-white','text-indigo-900','shadow-sm'); tHost.classList.add('text-gray-500'); }
         }
-
-        // --- Scanners ---
-        function toggleScanner() { 
-            const m = document.getElementById('scannerModal'); 
-            if(!m.classList.contains('hidden')) { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode.clear()); m.classList.add('hidden'); }
-            else { 
-                m.classList.remove('hidden'); html5QrCode = new Html5Qrcode("reader"); 
-                html5QrCode.start({facingMode:"environment"}, {fps:20,qrbox:250}, (t)=>{ 
-                    try {
-                        if(t.startsWith("LOGIN:")) { 
-                            const p = t.replace("LOGIN:","").split("|");
-                            playBeep();
-                            showToast("MURID DIKESAN");
-                            activeStudent={name:p[0],kls:p[1]}; 
-                            // Stop & Open Form
-                            html5QrCode.stop().then(() => {
-                                html5QrCode.clear();
-                                m.classList.add('hidden');
-                                openEntryModal();
-                            });
-                        }
-                    } catch(e) {}
-                }); 
-            }
-        }
-        function startRemoteScanner() { document.getElementById('remoteScannerModal').classList.remove('hidden'); startHtml5RemoteScanner(); }
-        function startHtml5RemoteScanner() {
-            if(remoteScannerHtml5QrCode) return;
-            remoteScannerHtml5QrCode = new Html5Qrcode("remoteScannerVideo");
-            remoteScannerHtml5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 300, height: 300 } }, (t) => {
-                if(t.startsWith("LOGIN:")) {
-                    const p = t.replace("LOGIN:", "").split("|");
-                    if(conn && conn.open) {
-                        conn.send({ type: 'SCAN_ENTRY', payload: { name: p[0], kls: p[1] } });
-                        playBeep(); showToast("DATA DIHANTAR");
-                        if(navigator.vibrate) navigator.vibrate(100);
-                        remoteScannerHtml5QrCode.pause(true);
-                        setTimeout(() => remoteScannerHtml5QrCode.resume(), 1500);
-                    } else { alert("Terputus."); }
-                }
-            }).catch(e=>{alert("Kamera error.");});
-        }
-        function stopRemoteScanner() { if(remoteScannerHtml5QrCode) remoteScannerHtml5QrCode.stop().then(() => { document.getElementById('remoteScannerModal').classList.add('hidden'); remoteScannerHtml5QrCode = null; }); else document.getElementById('remoteScannerModal').classList.add('hidden'); }
-
-        // --- Other Helpers ---
-        function playBeep() { const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=1000;o.type="sine";g.gain.value=0.1;o.start();g.gain.exponentialRampToValueAtTime(0.00001,c.currentTime+0.1);setTimeout(()=>o.stop(),100); }
-        function showToast(msg) { const t=document.getElementById('toast-notification'); document.getElementById('toast-name').innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); }
-        
-        // --- Synergy ---
-        function switchSynergyTab(tab) { if(tab==='host'){ document.getElementById('synergyHostView').classList.remove('hidden'); document.getElementById('synergyClientView').classList.add('hidden'); } else { document.getElementById('synergyHostView').classList.add('hidden'); document.getElementById('synergyClientView').classList.remove('hidden'); } }
         function openSynergyModal() { document.getElementById('synergyModal').classList.remove('hidden'); switchSynergyTab('host'); }
         function closeSynergyModal() { document.getElementById('synergyModal').classList.add('hidden'); }
-        function initSynergyHost() { document.getElementById('synergyLoading').classList.remove('hidden'); const c=Math.random().toString(36).substring(2,7).toUpperCase(), pid=`cx-${c}`; if(peer) peer.destroy(); peer=new Peer(pid); peer.on('open',id=>{ myPeerId=id; document.getElementById('synergyLoading').classList.add('hidden'); document.getElementById('synergyCodeDisplay').innerText=c; const s=document.getElementById('lcdRemoteStatus'); if(s) s.innerText=`Menunggu (${c})`; }); peer.on('connection',c=>{ conn=c; setupConnection(true); }); }
-        function joinSynergySession() { const v=document.getElementById('sessionCodeInput').value.trim().toUpperCase(); if(!v) return alert("Kod?"); document.getElementById('synergyLoading').classList.remove('hidden'); if(peer) peer.destroy(); peer=new Peer(); peer.on('open',()=>{ conn=peer.connect(`cx-${v}`); conn.on('open',()=>{ document.getElementById('synergyLoading').classList.add('hidden'); setupConnection(false); }); }); }
-        function setupConnection(isHost) { isConnected=true; closeSynergyModal(); document.getElementById('connectionStatus').innerText=isHost?"HOST MODE":"REMOTE CONNECTED"; document.getElementById('connectionStatus').className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider animate-pulse"; if(isHost) { document.getElementById('lcdRemoteStatus').innerText="TERSAMBUNG"; alert("Telefon disambung!"); conn.on('data',d=>{if(d.type==='SCAN_ENTRY') handleRaceEntry(d.payload);}); } else { alert("Berjaya!"); startRemoteScanner(); } }
+        function initSynergyHost() {
+            document.getElementById('synergyLoading').classList.remove('hidden');
+            const code = Math.random().toString(36).substring(2, 7).toUpperCase(), peerId = `cx-${code}`;
+            if(peer) peer.destroy();
+            peer = new Peer(peerId);
+            peer.on('open', (id) => {
+                myPeerId = id; document.getElementById('synergyLoading').classList.add('hidden');
+                document.getElementById('synergyCodeDisplay').innerText = code;
+                const s = document.getElementById('lcdRemoteStatus'); if(s) s.innerText = `Menunggu (${code})`;
+            });
+            peer.on('connection', (c) => { conn = c; setupConnection(true); });
+            peer.on('error', () => { alert("Ralat ID. Cuba lagi."); initSynergyHost(); });
+        }
+        function joinSynergySession() {
+            const input = document.getElementById('sessionCodeInput').value.trim().toUpperCase();
+            if(!input) return alert("Kod diperlukan.");
+            document.getElementById('synergyLoading').classList.remove('hidden');
+            if(peer) peer.destroy(); peer = new Peer();
+            peer.on('open', () => {
+                conn = peer.connect(`cx-${input}`);
+                conn.on('open', () => { document.getElementById('synergyLoading').classList.add('hidden'); setupConnection(false); });
+                conn.on('error', () => { alert("Gagal sambung."); document.getElementById('synergyLoading').classList.add('hidden'); });
+            });
+        }
+        function setupConnection(isHost) {
+            isConnected = true; closeSynergyModal();
+            document.getElementById('connectionStatus').innerText = isHost ? "HOST MODE" : "REMOTE CONNECTED";
+            document.getElementById('connectionStatus').className = "text-[10px] font-bold text-emerald-500 uppercase tracking-wider animate-pulse";
+            if(isHost) {
+                const s = document.getElementById('lcdRemoteStatus'); if(s) { s.innerText="TERSAMBUNG"; s.classList.add("text-emerald-400"); }
+                alert("Telefon disambungkan!");
+                conn.on('data', (d) => { if(d.type==='SCAN_ENTRY') handleRaceEntry(d.payload); });
+            } else { alert("Berjaya! Telefon kini berfungsi sebagai pengimbas."); startRemoteScanner(); }
+        }
 
-        // --- LCD ---
-        function handleRaceEntry(p) { const sel=document.getElementById('lcdTimeSelect').value; let init=600; if(sel==='custom') init=(document.getElementById('lcdCustomTime').value||10)*60; else init=parseInt(sel); const e=init-lcdTimeLeft; const m=Math.floor(e/60), s=e%60, tStr=`${m}m ${s}s`; if(liveLeaderboard.find(r=>r.name===p.name&&r.kls===p.kls)) return; liveLeaderboard.push({name:p.name,kls:p.kls,timeStr:tStr,timestamp:e}); updateLCDLeaderboardUI(); }
-        function updateLCDLeaderboardUI() { const l=document.getElementById('lcdLeaderboardList'), f=document.getElementById('lcdClassFilter').value; let d=liveLeaderboard; if(f!=='all') d=liveLeaderboard.filter(r=>r.kls===f); d.sort((a,b)=>a.timestamp-b.timestamp); l.innerHTML=""; document.getElementById('leaderboardCount').innerText=d.length; d.forEach((r,i)=>{ const e=document.createElement('div'); e.className="leaderboard-item show bg-white/10 p-4 rounded-2xl flex justify-between items-center text-white border border-white/10 mb-2"; e.innerHTML=`<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white text-indigo-900 font-black flex items-center justify-center text-lg shadow-lg">${i+1}</div><div><p class="font-black leading-tight text-xl truncate max-w-[200px]">${r.name}</p><p class="text-xs opacity-80 font-bold text-indigo-200">${r.kls}</p></div></div><p class="font-mono font-black text-emerald-400 text-2xl">${r.timeStr}</p>`; l.appendChild(e); }); }
+        // --- LCD Logic ---
+        function handleRaceEntry(p) {
+            const sel = document.getElementById('lcdTimeSelect').value;
+            let init = 600; if(sel==='custom') init=(document.getElementById('lcdCustomTime').value||10)*60; else init=parseInt(sel);
+            const elapsed = init - lcdTimeLeft;
+            const m = Math.floor(elapsed / 60), s = elapsed % 60;
+            const timeStr = `${m}m ${s}s`;
+            
+            const exists = liveLeaderboard.find(r => r.name===p.name && r.kls===p.kls);
+            if(exists) return;
+            liveLeaderboard.push({ name:p.name, kls:p.kls, timeStr:timeStr, timestamp:elapsed });
+            updateLCDLeaderboardUI();
+        }
+        function updateLCDLeaderboardUI() {
+            const list = document.getElementById('lcdLeaderboardList'), filter = document.getElementById('lcdClassFilter').value;
+            let data = liveLeaderboard;
+            if(filter!=='all') data = liveLeaderboard.filter(r=>r.kls===filter);
+            data.sort((a,b)=>a.timestamp - b.timestamp);
+            list.innerHTML = ""; document.getElementById('leaderboardCount').innerText = data.length;
+            data.forEach((r,i) => {
+                const el = document.createElement('div');
+                el.className = "leaderboard-item show bg-white/10 p-4 rounded-2xl flex justify-between items-center text-white border border-white/10 mb-2";
+                el.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white text-indigo-900 font-black flex items-center justify-center text-lg shadow-lg">${i+1}</div><div><p class="font-black leading-tight text-xl truncate max-w-[200px] md:max-w-md">${r.name}</p><p class="text-xs opacity-80 uppercase tracking-widest font-bold text-indigo-200">${r.kls}</p></div></div><p class="font-mono font-black text-emerald-400 text-2xl">${r.timeStr}</p>`;
+                list.appendChild(el);
+            });
+        }
         function filterLeaderboard() { updateLCDLeaderboardUI(); }
-        function finishRace() { clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; document.getElementById('lcdStartBtn').innerText="MULA"; renderPodium(); }
-        function renderPodium() { const f=document.getElementById('lcdClassFilter').value; let d=liveLeaderboard; if(f!=='all') d=liveLeaderboard.filter(r=>r.kls===f); d.sort((a,b)=>a.timestamp-b.timestamp); const w=d.slice(0,3); if(w[0]){document.getElementById('winner1Name').innerText=w[0].name; document.getElementById('winner1Time').innerText=w[0].timeStr;} if(w[1]){document.getElementById('winner2Name').innerText=w[1].name; document.getElementById('winner2Time').innerText=w[1].timeStr;} if(w[2]){document.getElementById('winner3Name').innerText=w[2].name; document.getElementById('winner3Time').innerText=w[2].timeStr;} const rc=document.getElementById('restOfLeaderboard'); rc.innerHTML=""; d.slice(3,11).forEach((r,i)=>{ rc.innerHTML+=`<div class="bg-indigo-900/40 p-3 rounded-xl flex justify-between items-center border border-white/10"><span class="truncate pr-2">${i+4}. ${r.name}</span><span class="font-mono text-emerald-400">${r.timeStr}</span></div>`; }); document.getElementById('podiumView').classList.remove('hidden'); (function frame(){confetti({particleCount:5,angle:60,spread:55,origin:{x:0}});confetti({particleCount:5,angle:120,spread:55,origin:{x:1}});if(Date.now()<Date.now()+3000)requestAnimationFrame(frame);}()); }
-        function hidePodium() { document.getElementById('podiumView').classList.add('hidden'); }
+        function finishRace() {
+            clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; document.getElementById('lcdStartBtn').innerText="MULA";
+            renderPodium();
+        }
+        function renderPodium() {
+            const filter = document.getElementById('lcdClassFilter').value;
+            let data = liveLeaderboard;
+            if(filter!=='all') data = liveLeaderboard.filter(r=>r.kls===filter);
+            data.sort((a,b)=>a.timestamp - b.timestamp);
+            
+            const w = data.slice(0,3);
+            if(w[0]) { document.getElementById('winner1Name').innerText=w[0].name; document.getElementById('winner1Time').innerText=w[0].timeStr; }
+            if(w[1]) { document.getElementById('winner2Name').innerText=w[1].name; document.getElementById('winner2Time').innerText=w[1].timeStr; }
+            if(w[2]) { document.getElementById('winner3Name').innerText=w[2].name; document.getElementById('winner3Time').innerText=w[2].timeStr; }
+            
+            const rc = document.getElementById('restOfLeaderboard'); rc.innerHTML="";
+            data.slice(3,11).forEach((r,i)=>{ rc.innerHTML += `<div class="bg-indigo-900/40 p-3 rounded-xl flex justify-between items-center border border-white/10"><span class="truncate pr-2 max-w-[150px]">${i+4}. ${r.name}</span><span class="font-mono text-emerald-400">${r.timeStr}</span></div>`; });
+            
+            document.getElementById('podiumView').classList.remove('hidden');
+            confettiActive = true;
+            var duration = 1500; var end = Date.now() + duration;
+            (function frame() {
+                if(!confettiActive) return;
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+        function hidePodium() { 
+            document.getElementById('podiumView').classList.add('hidden'); 
+            confettiActive = false;
+            if(window.confetti) window.confetti.reset();
+        }
         function openLCDMode() { document.getElementById('lcdModal').classList.remove('hidden'); document.getElementById('lcdTimerDisplay').innerText="10:00"; updateClassDropdownLCD(); }
         function closeLCDMode() { document.getElementById('lcdModal').classList.add('hidden'); resetLcdCountdown(); }
-        function updateClassDropdownLCD() { const d=document.getElementById('lcdClassFilter'), u=[...new Set(students.map(s=>s.kls))].sort(); d.innerHTML='<option value="all">SEMUA</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); }
+        function updateClassDropdownLCD() { const d = document.getElementById('lcdClassFilter'), u = [...new Set(students.map(s => s.kls))].sort(); d.innerHTML = '<option value="all">SEMUA</option>' + u.map(c => `<option value="${c}">${c}</option>`).join(''); }
         function startLcdCountdown() { if(lcdCountdownInterval) { clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; document.getElementById('lcdStartBtn').innerText="SAMBUNG"; return; } const s=document.getElementById('lcdTimeSelect').value; if(lcdTimeLeft==600||lcdTimeLeft==0) lcdTimeLeft=s==='custom'?(document.getElementById('lcdCustomTime').value*60):parseInt(s); document.getElementById('lcdStartBtn').innerText="BERHENTI"; lcdCountdownInterval=setInterval(()=>{lcdTimeLeft--; updateLcdDisplay(); if(lcdTimeLeft<=0){clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; finishRace();}},1000); }
         function resetLcdCountdown() { clearInterval(lcdCountdownInterval); lcdCountdownInterval=null; lcdTimeLeft=600; updateLcdDisplay(); document.getElementById('lcdStartBtn').innerText="MULA"; liveLeaderboard=[]; updateLCDLeaderboardUI(); }
         function updateLcdDisplay() { const m=Math.floor(lcdTimeLeft/60).toString().padStart(2,'0'), s=(lcdTimeLeft%60).toString().padStart(2,'0'); document.getElementById('lcdTimerDisplay').innerText=`${m}:${s}`; }
         document.getElementById('lcdTimeSelect').addEventListener('change',function(){const c=document.getElementById('lcdCustomTime'); if(this.value==='custom')c.classList.remove('hidden'); else{c.classList.add('hidden'); lcdTimeLeft=parseInt(this.value); updateLcdDisplay();} });
 
-        // --- App & Modals ---
         function openStudentManager() { document.getElementById('studentModal').classList.remove('hidden'); renderStudentList(); renderGradebook(); }
         function closeStudentManager() { document.getElementById('studentModal').classList.add('hidden'); }
         function openEntryModal() { document.getElementById('entryModal').classList.remove('hidden'); if(activeStudent) document.getElementById('entryStudentInfo').innerText=`${activeStudent.name} (${activeStudent.kls})`; const g=document.getElementById('entrySifirGrid'); g.innerHTML=''; for(let i=1;i<=9;i++) { const b=document.createElement('button'); b.className=`p-2 border rounded ${scanTargetSifir==i?'bg-indigo-600 text-white':'bg-white'}`; b.innerText=i; b.onclick=()=>{scanTargetSifir=i;openEntryModal();}; g.appendChild(b); } }
@@ -578,11 +549,86 @@
             if(currentSubStep === 3) { const ans = document.getElementById(`ans-${m}`); ans.textContent = res < 10 ? `0${res}` : res; ans.classList.replace('fill-indigo-200', 'fill-indigo-900'); content += `<div class="mt-6 p-8 bg-indigo-800 text-white rounded-[2rem] text-center shadow-2xl animate-fade-up"><p class="text-xs font-black uppercase opacity-60 mb-1 tracking-widest">Jawapan Akhir</p><p class="text-6xl font-black">${res}</p></div>`; document.getElementById('guideActions').innerHTML = `<button onclick="selectSifir(${currentSifir})" class="w-full py-4 bg-gray-100 rounded-2xl font-black text-gray-500 hover:bg-indigo-50 transition-all shadow-sm">Teruskan Seterusnya!</button>`; } else { document.getElementById('guideActions').innerHTML = `<button onclick="currentSubStep++; updateLearnUI();" class="w-full py-4 bg-indigo-700 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-800 transition-all">Langkah Seterusnya</button>`; }
             document.getElementById('guideContent').innerHTML = content;
         }
+
+        // --- FIXED PDF LOGIC (ASYNC QR) ---
+        function generateTestByClass() { 
+            const c=document.getElementById('printClassSelect').value, t=c==='all'?students:students.filter(s=>s.kls===c); if(!t.length) return alert("Tiada data");
+            const p=document.getElementById('printArea'); p.innerHTML='';
+            
+            // Build Structure
+            t.forEach((s,i)=>{
+                const d=document.createElement('div'); d.className='page-break p-10 border-4 m-4';
+                d.innerHTML=`<div class="flex justify-between border-b-4 pb-4 mb-4"><div><h1 class="text-4xl font-black">CIRCULOX</h1><p class="text-xl font-bold">${s.name}</p><p>${s.kls}</p></div><div id="qr-${i}"></div></div><div class="grid grid-cols-2 gap-4">${Array.from({length:8},(_,j)=>`<div class="border-2 p-2 flex flex-col items-center"><p class="font-black text-lg">x${j+2}</p><div class="h-32 w-32 border rounded-full relative"><svg viewBox="0 0 400 400" class="absolute inset-0 w-full h-full">${Array.from({length:10},(_,k)=>{const a=k*36-90,r=((a+18)*Math.PI)/180;return`<path d="${createArcPath(200,200,85,175,a,a+36)}" fill="none" stroke="black" stroke-width="4"/><text x="${200+Math.cos(r)*65}" y="${200+Math.sin(r)*65}" text-anchor="middle" font-size="28" font-weight="900" alignment-baseline="middle">${k+1}</text><text x="${200+Math.cos(r)*112}" y="${200+Math.sin(r)*115}" text-anchor="middle" font-size="24" fill="#ccc">__</text>`;}).join('')}<circle cx="200" cy="200" r="45" fill="none" stroke="black" stroke-width="6"/></svg></div></div>`).join('')}</div><div class="mt-4 border-t-4 pt-2 flex justify-between font-bold text-xl"><p>MARKAH: _____ / 80</p><p>MASA: ________</p></div>`;
+                p.appendChild(d);
+            });
+
+            // Delay for QRs then Print
+            setTimeout(()=>{
+                t.forEach((s,i)=>{ new QRCode(document.getElementById(`qr-${i}`),{text:`LOGIN:${s.name}|${s.kls}`,width:100,height:100,correctLevel:QRCode.CorrectLevel.L}); });
+                setTimeout(()=>window.print(), 1500);
+            }, 500);
+        }
+
+        // --- Smooth Scanner (No Alert) ---
+        function toggleScanner() { 
+            const m = document.getElementById('scannerModal'); 
+            if(!m.classList.contains('hidden')) { if(html5QrCode) html5QrCode.stop().then(()=>html5QrCode.clear()); m.classList.add('hidden'); }
+            else { 
+                m.classList.remove('hidden'); html5QrCode = new Html5Qrcode("reader"); 
+                html5QrCode.start({facingMode:"environment"}, {fps:25,qrbox:250}, (t)=>{ 
+                    try {
+                        if(t.startsWith("LOGIN:")) { 
+                            const p = t.replace("LOGIN:","").split("|");
+                            playBeep();
+                            showToast("MURID DIKESAN");
+                            activeStudent={name:p[0],kls:p[1]}; 
+                            // Stop & Open Form Automatically
+                            html5QrCode.stop().then(() => {
+                                html5QrCode.clear();
+                                m.classList.add('hidden');
+                                openEntryModal();
+                            });
+                        }
+                    } catch(e) {}
+                }); 
+            }
+        }
+        function startRemoteScanner() { document.getElementById('remoteScannerModal').classList.remove('hidden'); startHtml5RemoteScanner(); }
+        function startHtml5RemoteScanner() {
+            if(remoteScannerHtml5QrCode) return;
+            remoteScannerHtml5QrCode = new Html5Qrcode("remoteScannerVideo");
+            remoteScannerHtml5QrCode.start({ facingMode: "environment" }, { fps: 25, qrbox: { width: 300, height: 300 } }, (t) => {
+                if(t.startsWith("LOGIN:")) {
+                    const p = t.replace("LOGIN:", "").split("|");
+                    if(conn && conn.open) {
+                        conn.send({ type: 'SCAN_ENTRY', payload: { name: p[0], kls: p[1] } });
+                        playBeep(); showToast("DATA DIHANTAR");
+                        if(navigator.vibrate) navigator.vibrate(100);
+                        remoteScannerHtml5QrCode.pause(true);
+                        setTimeout(() => remoteScannerHtml5QrCode.resume(), 1200);
+                    }
+                }
+            });
+        }
+        function stopRemoteScanner() { if(remoteScannerHtml5QrCode) remoteScannerHtml5QrCode.stop().then(() => { document.getElementById('remoteScannerModal').classList.add('hidden'); remoteScannerHtml5QrCode = null; }); else document.getElementById('remoteScannerModal').classList.add('hidden'); }
+        function playBeep() { const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=1000;o.type="sine";g.gain.value=0.1;o.start();g.gain.exponentialRampToValueAtTime(0.00001,c.currentTime+0.1);setTimeout(()=>o.stop(),100); }
+        function showToast(msg) { const t=document.getElementById('toast-notification'); document.getElementById('toast-name').innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); }
+
         function createArcPath(x,y,r1,r2,a1,a2) { const rad1=a1*Math.PI/180, rad2=a2*Math.PI/180; return `M ${x+Math.cos(rad1)*r2} ${y+Math.sin(rad1)*r2} A ${r2} ${r2} 0 0 1 ${x+Math.cos(rad2)*r2} ${y+Math.sin(rad2)*r2} L ${x+Math.cos(rad2)*r1} ${y+Math.sin(rad2)*r1} A ${r1} ${r1} 0 0 0 ${x+Math.cos(rad1)*r1} ${y+Math.sin(rad1)*r1} Z`; }
         function startTimer() { if(!timerInterval) { const s = Date.now(); timerInterval = setInterval(() => { const t = Math.floor((Date.now()-s)/1000); document.getElementById('timerDisplay').innerText = t; }, 1000); } }
         function resetTimer() { clearInterval(timerInterval); timerInterval=null; if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').innerText="00:00"; }
-        function resetApp() { currentSifir=null; score={correct:0,total:0}; resetTimer(); if(document.getElementById('wheelWrapper')) document.getElementById('wheelWrapper').innerHTML = `<span class="text-indigo-100 font-black text-center p-8 text-xl uppercase tracking-widest leading-tight">Sila Pilih Sifir</span>`; document.getElementById('guideContent').innerHTML = `<div class="text-center py-12"><div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><h2 class="text-2xl font-black text-pdp-primary mb-3">Panduan PdP</h2><p class="text-sm text-gray-500 font-bold leading-relaxed px-4">Sila pilih murid dan sifir di bahagian kiri untuk memulakan sesi PdP secara interaktif.</p></div>`; document.getElementById('guideActions').innerHTML = ""; document.querySelectorAll('.sifir-btn').forEach(b => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900', 'ring-2', 'ring-indigo-200')); document.querySelectorAll('[id^="mnl-"]').forEach(m => m.classList.remove('mnl-active')); }
-        
+        function resetApp() { currentSifir=null; score={correct:0,total:0}; resetTimer(); if(document.getElementById('wheelWrapper')) document.getElementById('wheelWrapper').innerHTML = `<span class="text-indigo-100 font-black text-center p-8 text-xl uppercase tracking-widest leading-tight">Sila Pilih Sifir</span>`; document.getElementById('guideContent').innerHTML = `<div class="text-center py-12"><div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><h2 class="text-2xl font-black text-pdp-primary mb-3">Panduan PdP</h2><p class="text-sm text-gray-500 font-bold leading-relaxed px-4">Sila pilih murid dan sifir di bahagian kiri untuk memulakan sesi pembelajaran interaktif.</p></div>`; document.getElementById('guideActions').innerHTML = ""; document.querySelectorAll('.sifir-btn').forEach(b => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900', 'ring-2', 'ring-indigo-200')); document.querySelectorAll('[id^="mnl-"]').forEach(m => m.classList.remove('mnl-active')); }
+        function updateClassDropdown() { const d=document.getElementById('classDropdown'), p=document.getElementById('printClassSelect'), u=[...new Set(students.map(s=>s.kls))].sort(); const h='<option value="">Pilih...</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); d.innerHTML=h; p.innerHTML='<option value="all">SEMUA KELAS</option>'+u.map(c=>`<option value="${c}">${c}</option>`).join(''); }
+        function loadStudentsByClass() { const k=document.getElementById('classDropdown').value, d=document.getElementById('studentDropdown'); if(k) d.innerHTML='<option value="">Pilih...</option>'+students.filter(s=>s.kls===k).map(s=>`<option value="${s.name}">${s.name}</option>`).join(''); else d.innerHTML='<option value="">Pilih...</option>'; }
+        function selectStudentFromList() { const n=document.getElementById('studentDropdown').value, k=document.getElementById('classDropdown').value; activeStudent=students.find(s=>s.name===n&&s.kls===k); updateStudentUI(); }
+        function updateStudentUI() { if(activeStudent) { document.getElementById('studentDetail').classList.remove('hidden'); document.getElementById('noStudentText').classList.add('hidden'); document.getElementById('activeStudentInfo').classList.remove('hidden'); document.getElementById('dispName').innerText=activeStudent.name; document.getElementById('dispClass').innerText=activeStudent.kls; } }
+        function addStudent() { const n=document.getElementById('addName').value, k=document.getElementById('addClass').value; if(n&&k) { students.push({name:n,kls:k}); localStorage.setItem('krd_students_v3',JSON.stringify(students)); updateClassDropdown(); renderStudentList(); document.getElementById('addName').value=''; document.getElementById('addClass').value=''; } }
+        function addBulkStudents() { const r=document.getElementById('bulkInput').value; if(r) { r.split('\n').forEach(l=>{const p=l.split(','); if(p.length>=2) students.push({name:p[0].trim(),kls:p[1].trim().toUpperCase()});}); localStorage.setItem('krd_students_v3',JSON.stringify(students)); updateClassDropdown(); renderStudentList(); document.getElementById('bulkInput').value=''; } }
+        function renderStudentList() { const l=document.getElementById('studentListContainer'); l.innerHTML=''; [...students].reverse().forEach((s,i)=>{ l.innerHTML+=`<div class="flex justify-between p-2 border-b"><span>${s.name} (${s.kls})</span><button onclick="removeStudent(${students.length-1-i})" class="text-red-500">x</button></div>`; }); }
+        function removeStudent(i) { students.splice(i,1); localStorage.setItem('krd_students_v3',JSON.stringify(students)); renderStudentList(); updateClassDropdown(); }
+        function renderGradebook() { const l=document.getElementById('gradebookList'); l.innerHTML=''; [...records].reverse().forEach(r=>{ l.innerHTML+=`<div class="p-2 border-b text-xs"><b>${r.name}</b>: Sifir ${r.sifir} | ${r.score}/10 | ${r.time}s</div>`; }); }
+        function clearAllData() { if(confirm("Padam?")) { students=[]; records=[]; localStorage.clear(); updateClassDropdown(); renderStudentList(); renderGradebook(); } }
+
         // Init
         updateClassDropdown(); renderStudentList(); renderGradebook(); resetApp();
     </script>
